@@ -5,11 +5,14 @@
  */
 package tictactoeserver;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.apache.derby.jdbc.ClientDriver;
 
 /**
  *
@@ -22,7 +25,8 @@ public class TicTacToeServer extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("TicTacToeServer.fxml"));
         
         Scene scene = new Scene(root);
-        
+          DriverManager.registerDriver(new ClientDriver());
+            Connection con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
         stage.setScene(scene);
         stage.show();
     }
