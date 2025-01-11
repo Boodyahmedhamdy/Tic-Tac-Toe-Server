@@ -25,8 +25,10 @@ public class TicTacToeServer extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("TicTacToeServer.fxml"));
         
         Scene scene = new Scene(root);
+        /*
           DriverManager.registerDriver(new ClientDriver());
             Connection con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
+        */
         stage.setScene(scene);
         stage.show();
     }
