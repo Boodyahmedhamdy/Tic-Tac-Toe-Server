@@ -30,6 +30,7 @@ public class TicTacToeServer extends Application {
             Connection con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
         */
         stage.setScene(scene);
+        stage.setTitle("Tic Tac Teo Server");
         stage.show();
     }
 
