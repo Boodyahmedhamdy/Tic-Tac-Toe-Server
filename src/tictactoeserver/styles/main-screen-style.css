@@ -1,0 +1,33 @@
+/* Base button styling */
+.button {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #e6e6e6); /* Gradient background */
+    -fx-text-fill: #333333; /* Dark text color */
+    -fx-font-size: 20px; /* Larger font size */
+    -fx-font-family: "Arial"; /* Font family */
+    -fx-padding: 15px 40px; /* Inner padding for button size */
+    -fx-border-width: 2px; /* Border thickness */
+    -fx-border-radius: 20px; /* More rounded corners */
+    -fx-background-radius: 20px; /* Matching rounded corners */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 5, 0.3, 0, 2); /* Subtle shadow */
+    -fx-cursor: hand; /* Pointer cursor on hover */
+    -fx-transition: 0.3s ease-in-out; /* Smooth transition for hover effect */
+}
+
+/* Hover effect for buttons */
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #e6e6e6, #ffffff); /* Reverse gradient on hover */
+    -fx-border-color: #cccccc; /* Lighter border on hover */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 8, 0.3, 0, 3); /* Slightly stronger shadow */
+}
+
+/* Pressed button effect */
+.button:pressed {
+    -fx-background-color: #d9d9d9; /* Slightly darker gray for pressed state */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 3, 0.3, 0, 1); /* Subtle shadow reduction */
+}
+
+/* VBox styling for vertical alignment and spacing */
+.vbox {
+    -fx-alignment: center; /* Center alignment */
+    -fx-spacing: 25px; /* Increased space between buttons for better layout */
+}
