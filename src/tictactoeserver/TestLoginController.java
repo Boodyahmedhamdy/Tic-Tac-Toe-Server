@@ -50,9 +50,28 @@ public class TestLoginController implements Initializable {
                         lable.setText("Insert Faild"); 
                     }
             } catch (SQLException ex) {
-                Logger.getLogger(TestLoginController.class.getName()).log(Level.SEVERE, null, ex);
+                 lable.setText("Insert Faild Try Another Username "); 
             }
         });
+        loginbtn.setOnAction((event) -> {
+      String username = nameField.getText();
+      String password = passwordField.getText();
+
+       try {
+        boolean passwordResult = DataAccessLayer.checkPassword(username, password);
+        boolean userResult=DataAccessLayer.checkUser(username, password);
+        if(userResult && passwordResult){
+         lable.setText("Exist and wright password");
+        }else if(userResult&& !passwordResult ){
+             lable.setText("Exist and wrong password");
+        }else if(!userResult){
+           lable.setText("Not Exist ");
+        }
+        
+    } catch (SQLException ex) {
+        Logger.getLogger(TestLoginController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+});
          
     }    
     
