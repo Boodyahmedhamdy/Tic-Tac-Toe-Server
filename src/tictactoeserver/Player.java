@@ -7,16 +7,18 @@ package tictactoeserver;
 
 /**
  *
- * @author Laptop World
+ * @author Abdelrahman Elshreif
  */
 public class Player {
-     private String userName;
-     private String password;
-     private int rank;
-     private int matchesNum; 
-     private boolean isOnLine; 
-     private boolean isPlaying;
-      public Player(String userName, String password, int rank, int matchesNum, boolean isOnLine, boolean isPlaying) {
+
+    private String userName;
+    private String password;
+    private int rank;
+    private int matchesNum;
+    private boolean isOnLine;
+    private boolean isPlaying;
+
+    public Player(String userName, String password, int rank, int matchesNum, boolean isOnLine, boolean isPlaying) {
         this.userName = userName;
         this.password = password;
         this.rank = rank;
@@ -73,7 +75,4 @@ public class Player {
         this.isPlaying = isPlaying;
     }
 
-   
-    
-    
 }

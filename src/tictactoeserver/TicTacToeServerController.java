@@ -20,13 +20,18 @@ import javafx.scene.control.ListView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import tictactoeserver.ui.states.MainScreenUiState;
+import tictactoeserver.Server;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author HP
  */
 public class TicTacToeServerController implements Initializable {
-    
+
     @FXML
     private Text textServerStatus;
     @FXML
@@ -39,24 +44,25 @@ public class TicTacToeServerController implements Initializable {
     private Button btnPlayersStatistics;
     @FXML
     private Text textErrorMessage;
-    
-    MainScreenUiState uiState;
-    
 
-    
+    private Thread serverThread;
+    Server server;
+    private volatile boolean isServerRunning = false;
+    MainScreenUiState uiState;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         uiState = new MainScreenUiState(
-                MainScreenUiState.OFF, "192.168.1.1", FXCollections.observableList(new ArrayList<>()), ""
+                MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
         );
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
         textErrorMessage.setText(uiState.getErrorMessage());
         lvAvailablePlayers.setItems(uiState.getPlayers());
-        
-    }    
-    
+
+    }
+
     @FXML
     void handleToggleBtn(ActionEvent event) {
         System.out.println("Toggle button clicked");
@@ -64,31 +70,62 @@ public class TicTacToeServerController implements Initializable {
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
     }
-    
+
     @FXML
     void handleShowStatisticsBtn(ActionEvent event) {
         System.out.println("Statistics Button Clicked");
     }
-    
+
     void toggle() {
-        if(uiState.getServerStatus().equals(MainScreenUiState.OFF)) 
+        if (uiState.getServerStatus().equals(MainScreenUiState.OFF)) {
             turnSeverOn();
-        else 
+        } else {
             turnSeverOff();
+        }
     }
-    
+
     void turnSeverOn() {
+        server = new Server();
+        isServerRunning = true;
+        serverThread = new Thread(() -> {
+            server.start();
+        });
+        serverThread.start();
         uiState.setServerStatus(MainScreenUiState.ON);
         textServerStatus.setFill(Color.GREEN);
-        uiState.setServerIp("12.235.1.99"); // example for random ip
+        String serverIp = getServerIp();
+        uiState.setServerIp(serverIp); // example for random ip
         btnToggleServer.setText("Turn Sever OFF");
     }
-    
+
+    String getServerIp() {
+        try {
+            // Get the local host address
+            InetAddress localHost = InetAddress.getLocalHost();
+
+            // Get the IP address as a string
+            String ipAddress = localHost.getHostAddress();
+
+            // Print the IP address
+            return ipAddress;
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(TicTacToeServerController.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
     void turnSeverOff() {
+        isServerRunning = false;
+        if (server != null) {
+            server.close();
+        }
+        if(serverThread!=null){
+            serverThread.interrupt();
+        }
         uiState.setServerStatus(MainScreenUiState.OFF);
         textServerStatus.setFill(Color.RED);
         uiState.setServerIp("");
         btnToggleServer.setText("Turn Sever ON");
     }
-    
+
 }
