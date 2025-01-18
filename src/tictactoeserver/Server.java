@@ -23,6 +23,7 @@ public class Server {
     }
 
     public void start() {
+            isRunning = true;
         try {
             this.server = new ServerSocket(PORT);
             System.out.println("Waiting For Players....");
