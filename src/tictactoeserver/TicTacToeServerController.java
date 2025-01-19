@@ -18,8 +18,11 @@ import tictactoeserver.ui.states.MainScreenUiState;
 import tictactoeserver.Server;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
 
 /**
  *
