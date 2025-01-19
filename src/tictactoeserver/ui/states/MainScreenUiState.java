@@ -12,15 +12,15 @@ import javafx.collections.ObservableList;
  * @author HP
  */
 public class MainScreenUiState {
-    
+
     public static final String ON = "ON";
     public static final String OFF = "OFF";
-    
+
     String serverStatus;
     String serverIp;
     ObservableList<String> availablePlayers; // will be modified later
     String errorMessage;
-    
+
     public MainScreenUiState(String serverStatus, String serverIp, ObservableList<String> players, String errorMessage) {
         this.serverStatus = serverStatus;
         this.serverIp = serverIp;
@@ -59,7 +59,5 @@ public class MainScreenUiState {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
-    
-    
-    
+
 }
