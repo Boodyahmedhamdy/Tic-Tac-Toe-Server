@@ -102,11 +102,9 @@ public class TicTacToeServerController implements Initializable {
         try {
             // Get the local host address
             InetAddress localHost = InetAddress.getLocalHost();
-
             // Get the IP address as a string
             String ipAddress = localHost.getHostAddress();
 
-            // Print the IP address
             return ipAddress;
         } catch (UnknownHostException ex) {
             Logger.getLogger(TicTacToeServerController.class.getName()).log(Level.SEVERE, null, ex);

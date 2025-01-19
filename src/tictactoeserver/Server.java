@@ -4,8 +4,11 @@ import java.io.IOException;
 import tictactoeserver.ConnectedPlayer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tictactoeserver.GamePlayAction;
 
 
 /*
@@ -14,6 +17,8 @@ import java.util.logging.Logger;
 public class Server {
 
     public ServerSocket server;
+    private ExecutorService executorService = Executors.newCachedThreadPool();
+
     public static final int PORT = 9800;
     public static final String STOP_STRING = "##";
     private int playerIdx = 0;
@@ -23,7 +28,7 @@ public class Server {
     }
 
     public void start() {
-            isRunning = true;
+        isRunning = true;
         try {
             this.server = new ServerSocket(PORT);
             System.out.println("Waiting For Players....");
@@ -44,7 +49,6 @@ public class Server {
     // Turning Off Server
     public void close() {
         isRunning = false;
-
         try {
             if (this.server != null && !this.server.isClosed()) {
                 this.server.close();
@@ -55,18 +59,27 @@ public class Server {
 
     }
 
+//        if (playerSocket.isConnected()) {
+//            new Thread(() -> {
+//                playerIdx++;
+//                ConnectedPlayer player = new ConnectedPlayer(playerSocket, playerIdx);
+//                player.readMessages();
+//                player.close();
+//                playerIdx--;
+//
+//            }).start();
+//        }
     public void initPlayerConnection() throws IOException {
         Socket playerSocket = server.accept();
-
         if (playerSocket.isConnected()) {
-            new Thread(() -> {
+            executorService.submit(() -> {
                 playerIdx++;
                 ConnectedPlayer player = new ConnectedPlayer(playerSocket, playerIdx);
-
                 player.readMessages();
                 player.close();
-
-            }).start();
+                playerIdx--;
+            }); 
         }
+
     }
 }
