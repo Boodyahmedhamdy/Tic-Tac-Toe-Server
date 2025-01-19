@@ -1,10 +1,8 @@
 package tictactoeserver;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,11 +10,10 @@ import java.util.logging.Logger;
 /**
  * @author Abdelrahman_Elshreif
  */
-public class ConnectedPlayer extends Player {
+public class ConnectedPlayer {
 
     public Socket playerSocket;
-    public ObjectInputStream in;
-    public ObjectOutputStream out;
+    public DataInputStream in;
     public int id;
 
     public ConnectedPlayer(Socket playerSocket, int id) {
@@ -24,27 +21,22 @@ public class ConnectedPlayer extends Player {
             this.playerSocket = playerSocket;
             this.id = id;
             System.out.println("Player " + id + ": Connected");
-            this.in = new ObjectInputStream(new BufferedInputStream(playerSocket.getInputStream()));
-            this.out = new ObjectOutputStream(new BufferedOutputStream(playerSocket.getOutputStream()));
+            this.in = new DataInputStream(new BufferedInputStream(playerSocket.getInputStream()));
         } catch (IOException ex) {
             Logger.getLogger(ConnectedPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
-    
 
     public void readMessages() {
-        GamePlayAction action = null;
-        while (isIsOnLine()) {
+        String line = " ";
+        while (!line.equals(Server.STOP_STRING)) {
             try {
-                try {
-                    action = (GamePlayAction) in.readObject();
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(ConnectedPlayer.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                line = in.readUTF();
             } catch (IOException ex) {
                 Logger.getLogger(ConnectedPlayer.class.getName()).log(Level.SEVERE, null, ex);
             }
-            System.out.println("Player " + id + " :" + action.toString());
+            System.out.println("Player " + id + " :" + line);
         }
         System.out.println("Player" + id + ": Disconnected");
     }
@@ -52,7 +44,6 @@ public class ConnectedPlayer extends Player {
     public void close() {
         try {
             playerSocket.close();
-            out.close();
             in.close();
 
         } catch (IOException ex) {

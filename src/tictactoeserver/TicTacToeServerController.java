@@ -117,7 +117,7 @@ public class TicTacToeServerController implements Initializable {
         if (server != null) {
             server.close();
         }
-        if(serverThread!=null){
+        if (serverThread != null) {
             serverThread.interrupt();
         }
         uiState.setServerStatus(MainScreenUiState.OFF);
