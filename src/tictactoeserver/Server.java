@@ -4,6 +4,7 @@ import java.io.IOException;
 import tictactoeserver.ConnectedPlayer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tictactoeserver.GamePlayAction;
@@ -19,7 +20,7 @@ public class Server {
     public static final String STOP_STRING = "##";
     private int playerIdx = 0;
     private boolean isRunning = false;
-
+ public static Vector<ClientHandler> clientVector = new Vector<>();
     public Server() {
     }
 
@@ -30,7 +31,11 @@ public class Server {
             System.out.println("Waiting For Players....");
             while (isRunning) {
                 try {
-                    initPlayerConnection();
+                     Socket playerSocket = server.accept();
+                    initPlayerConnection(playerSocket);
+                    ClientHandler clientHandler = new ClientHandler(playerSocket);
+                    clientVector.add(clientHandler);
+                      new Thread(clientHandler).start();
                 } catch (IOException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error accepting player connection", ex);
                 }
@@ -55,9 +60,8 @@ public class Server {
 
     }
 
-    public void initPlayerConnection() throws IOException {
-        Socket playerSocket = server.accept();
-
+    public void initPlayerConnection( Socket playerSocket) throws IOException {
+       
         if (playerSocket.isConnected()) {
             new Thread(() -> {
                 playerIdx++;

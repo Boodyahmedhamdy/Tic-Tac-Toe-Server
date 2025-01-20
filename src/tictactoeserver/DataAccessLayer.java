@@ -87,7 +87,11 @@ public class DataAccessLayer {
  
     
 
+
    /* public static boolean checkPassword(String username, String password) throws SQLException {
+=======
+  /*  public static boolean checkPassword(String username, String password) throws SQLException {
+>>>>>>> a8ad00544455d1eee62ed4805605814c2f6e7034
         boolean finalResult = false;
         PreparedStatement st = con.prepareStatement("SELECT PASSWORD FROM PLAYER WHERE USERNAME = ?");
         st.setString(1, username);
@@ -102,6 +106,8 @@ public class DataAccessLayer {
         rs.close();
         st.close();
         return finalResult;
+<<<<<<< HEAD
     }*/
+
 
 }
