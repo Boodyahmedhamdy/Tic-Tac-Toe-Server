@@ -3,6 +3,7 @@ import java.io.IOException;
 import tictactoeserver.ConnectedPlayer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +20,8 @@ public class Server {
     public static final String STOP_STRING = "##";
     private int playerIdx = 0;
     private boolean isRunning = false;
+
+    private ArrayList<ConnectedPlayer> activePlayers;
 
  public static Vector<ClientHandler> clientVector = new Vector<>();
 
