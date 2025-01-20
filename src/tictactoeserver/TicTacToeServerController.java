@@ -113,10 +113,10 @@ public class TicTacToeServerController implements Initializable {
     void turnSeverOff() {
         isServerRunning = false;
         if (server != null) {
-            server.close();
+            server.shutdown(); // Ensure all resources are cleaned up
         }
         if (serverThread != null) {
-            serverThread.interrupt();
+            serverThread.interrupt(); // Interrupt the server thread
         }
         uiState.setServerStatus(MainScreenUiState.OFF);
         textServerStatus.setFill(Color.RED);
