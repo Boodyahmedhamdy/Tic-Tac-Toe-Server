@@ -11,6 +11,10 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import network.requests.LoginRequest;
+import network.requests.RegisterRequest;
+import network.responses.LoginResponse;
+import network.responses.RegisterResponse;
 
 /**
  *
@@ -59,13 +63,16 @@ public class ClientHandler implements Runnable {
 
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
-                response = new LoginResponse(true, "Login successful!");
-                //suc
+                // replace with SuccessLoginResponse
+//                response = new LoginResponse(true, "Login successful!");
+                
             } else {
-                response = new LoginResponse(false, "Invalid username or password.");
+                // repalce by FailLoginResponse
+//                response = new LoginResponse(false, "Invalid username or password.");
             }
 
-            sendResponse(response);
+            // the error here will disapear when you write what is above
+            // sendResponse(response);
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -83,12 +90,14 @@ public class ClientHandler implements Runnable {
 
             RegisterResponse response;
             if (isRegistered) {
-                response = new RegisterResponse(true, "Registration successful!");
+                // replace with SuccessRegisterResponse
+                // response = new RegisterResponse(true, "Registration successful!");
             } else {
-                response = new RegisterResponse(false, "Username already exists.");
+                // replace with FailRegisterResponse
+                // response = new RegisterResponse(false, "Username already exists.");
             }
-
-            sendResponse(response);
+                // the error here will disapear when you write what is above
+//            sendResponse(response);
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
