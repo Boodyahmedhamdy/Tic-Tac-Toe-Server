@@ -13,8 +13,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import network.requests.LoginRequest;
 import network.requests.RegisterRequest;
+import network.requests.Request;
+import network.requests.StartGameRequest;
 import network.responses.LoginResponse;
 import network.responses.RegisterResponse;
+import network.responses.Response;
+import network.responses.StartGameResponse;
 
 /**
  *
@@ -43,6 +47,11 @@ public class ClientHandler implements Runnable {
                     handleLogin((LoginRequest) request);
                 } else if (request instanceof RegisterRequest) {
                     handleRegister((RegisterRequest) request);
+                } else if (request instanceof StartGameRequest) {
+                    handleStartGameRequest( (StartGameRequest) request);
+                    
+                } else if (request instanceof StartGameResponse) {
+                    handleStartGameResponse((StartGameResponse) request);
                 } else {
                     System.out.println("Unknown request received.");
                 }
@@ -103,9 +112,18 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void sendResponse(Object response) {
+    private void sendResponse(Response response) {
         try {
             out.writeObject(response);
+            out.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void sendRequest(Request request) {
+        try {
+            out.writeObject(request);
             out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -121,5 +139,21 @@ public class ClientHandler implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void handleStartGameRequest(StartGameRequest request) {
+        String playerUsername = request.getUsername();
+        // find the suitable thread to send the request to
+        Server.clientVector.forEach((clientHandler) -> {
+            // if the handler's name is the same as user name
+            // send the request to. uncomment the next line
+            // sendRequest(request);
+        });
+    }
+
+    private void handleStartGameResponse(StartGameResponse response) {
+        String playerUsername = response.getUsername();
+        // send the response to the thread with this username
+        // sendResponse(response);
     }
 }

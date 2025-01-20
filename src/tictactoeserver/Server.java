@@ -1,9 +1,9 @@
 package tictactoeserver;
-
 import java.io.IOException;
 import tictactoeserver.ConnectedPlayer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +20,12 @@ public class Server {
     public static final String STOP_STRING = "##";
     private int playerIdx = 0;
     private boolean isRunning = false;
+
+    private ArrayList<ConnectedPlayer> activePlayers;
+
+    
  public static Vector<ClientHandler> clientVector = new Vector<>();
+
     public Server() {
     }
 
@@ -29,6 +34,7 @@ public class Server {
         try {
             this.server = new ServerSocket(PORT);
             System.out.println("Waiting For Players....");
+            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
             while (isRunning) {
                 try {
                      Socket playerSocket = server.accept();
@@ -47,6 +53,24 @@ public class Server {
         }
     }
 
+    public void shutdown() {
+        System.out.println("Shutting down server and closing all connections...");
+        isRunning = false;
+        for (ConnectedPlayer player : activePlayers) {
+            try {
+                player.getPlayerSocket().close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error closing player socket", ex);
+            }
+        }
+
+        // Clear the list of active players
+        activePlayers.clear();
+
+        // Close the server socket
+        close();
+    }
+
     // Turning Off Server
     public void close() {
         isRunning = false;
@@ -63,14 +87,25 @@ public class Server {
     public void initPlayerConnection( Socket playerSocket) throws IOException {
        
         if (playerSocket.isConnected()) {
-            new Thread(() -> {
+            Thread playerListener = new Thread(() -> {
                 playerIdx++;
                 ConnectedPlayer player = new ConnectedPlayer(playerSocket, playerIdx);
-                player.readMessages();
-                player.close();
+                if (isRunning) {
+                    player.readMessages();
+                } else {
+                    try {
+                        playerSocket.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                 playerIdx--;
-
-            }).start();
+            });
+            if (isRunning) {
+                playerListener.start();
+            } else {
+                playerListener.interrupt();
+            }
         }
     }
 }
