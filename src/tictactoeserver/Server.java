@@ -23,6 +23,7 @@ public class Server {
 
     private ArrayList<ConnectedPlayer> activePlayers;
 
+    
  public static Vector<ClientHandler> clientVector = new Vector<>();
 
     public Server() {
