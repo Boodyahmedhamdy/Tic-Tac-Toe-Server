@@ -85,6 +85,65 @@ public class DataAccessLayer {
         st.close();
         return finalResult;
     }
+    
+    /**
+     * gets a the player with passed username. returns null if any 
+     * player isn't found
+     * @param username
+     * @return Player with username or null if it isn't found
+     * @throws java.sql.SQLException
+    */
+    public static Player getPlayerByUsername(String username) throws SQLException {
+        PreparedStatement st = con.prepareStatement("SELECT * FROM PLAYER WHERE USERNAME = ?");
+        st.setString(1, username);
+        ResultSet result = st.executeQuery();
+        if(result.next()) {
+            Player player = convertResultSetIntoPlayer(result);
+            return player;
+        }
+        return null;
+    }
+    
+    
+    public static int updateIsOnline(String username, boolean isOnline) throws SQLException {
+        PreparedStatement st = con.prepareStatement(
+                "UPDATE PLAYER SET ISONLINE = ? WHERE USERNAME = ?"
+        );
+        st.setBoolean(1, isOnline);
+        st.setString(2, username);
+        int result = st.executeUpdate();
+        return result;
+    }
+    
+    
+    public static int updateIsPlaying(String username, boolean isPlaying) throws SQLException {
+        PreparedStatement st = con.prepareStatement(
+                "UPDATE PLAYER SET ISPLAYING = ? WHERE USERNAME = ?"
+        );
+        st.setBoolean(1, isPlaying);
+        st.setString(2, username);
+        int result = st.executeUpdate();
+        return result;
+    }
+    
+    
+    
+    /**
+     * to convert the passed result set into a Player to deal with
+    */
+    public static Player convertResultSetIntoPlayer(ResultSet result) throws SQLException {
+        Player player = new Player(
+                    result.getString("USERNAME"), 
+                    result.getString("PASSWORD"),
+                    result.getInt("RANK"),
+                    result.getInt("NUMBEROFMATCHES"),
+                    result.getBoolean("ISONLINE"),
+                    result.getBoolean("ISPLAYING")
+            );
+        return player;
+    }
+    
+    
 
     /* public static boolean checkPassword(String username, String password) throws SQLException {
 =======
