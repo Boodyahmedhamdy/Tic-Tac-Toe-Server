@@ -85,6 +85,20 @@ public class DataAccessLayer {
         st.close();
         return finalResult;
     }
+     public static int getRANK(String username, String password) throws SQLException {
+       int rank = 0 ;
+        PreparedStatement st = con.prepareStatement("SELECT RANK FROM PLAYER WHERE USERNAME = ?");
+        st.setString(1, username);
+        ResultSet rs = st.executeQuery();
+
+        if (rs.next()) {
+             rank = rs.getInt("RANK");
+            
+        }
+        rs.close();
+        st.close();
+        return rank;
+    }
     
     /**
      * gets a the player with passed username. returns null if any 

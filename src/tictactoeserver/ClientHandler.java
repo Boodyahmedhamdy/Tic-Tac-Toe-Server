@@ -18,10 +18,14 @@ import network.requests.LoginRequest;
 import network.requests.RegisterRequest;
 import network.requests.Request;
 import network.requests.StartGameRequest;
+import network.responses.FailLoginResponse;
+import network.responses.FailRegisterResponse;
 import network.responses.LoginResponse;
 import network.responses.RegisterResponse;
 import network.responses.Response;
 import network.responses.StartGameResponse;
+import network.responses.SuccessLoginResponse;
+import network.responses.SuccessRegisterResponse;
 
 /**
  *
@@ -73,20 +77,18 @@ public class ClientHandler implements Runnable {
     private void handleLogin(LoginRequest request) {
         try {
             System.out.println("Login request received for username: " + request.getUsername());
-
-            boolean isUserValid = DataAccessLayer.checkUser(request.getUsername(), request.getPassword());
-            boolean isPasswordValid = DataAccessLayer.checkPassword(request.getUsername(), request.getPassword());
-
+            String userName = request.getUsername();
+            String Password =request.getPassword();
+            int rank = DataAccessLayer.getRANK(userName,Password);
+            boolean isUserValid = DataAccessLayer.checkUser(userName, Password);
+            boolean isPasswordValid = DataAccessLayer.checkPassword(userName, Password);
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
-                // replace with SuccessLoginResponse
-//                response = new SuccessLoginResponse(true, "Login successful!");
+                 response = new SuccessLoginResponse(userName,rank);
                 
             } else {
-                // repalce by FailLoginResponse
-//                response = new LoginResponse(false, "Invalid username or password.");
+                response = new FailLoginResponse( "Invalid username or password.");
             }
-
             // the error here will disapear when you write what is above
             // sendResponse(response);
         } catch (Exception ex) {
@@ -97,7 +99,9 @@ public class ClientHandler implements Runnable {
     private void handleRegister(RegisterRequest request) {
         try {
             System.out.println("Register request received for username: " + request.getUsername());
-
+            String userName = request.getUsername();
+            String Password =request.getPassword();
+            int rank = DataAccessLayer.getRANK(userName,Password);
             boolean isRegistered = DataAccessLayer.insert(new Player(
                     request.getUsername(),
                     request.getPassword(),
@@ -106,14 +110,13 @@ public class ClientHandler implements Runnable {
 
             RegisterResponse response;
             if (isRegistered) {
-                // replace with SuccessRegisterResponse
-                // response = new RegisterResponse(true, "Registration successful!");
+                
+               response = new SuccessRegisterResponse(userName,rank);
             } else {
-                // replace with FailRegisterResponse
-                // response = new RegisterResponse(false, "Username already exists.");
+                 response = new FailRegisterResponse( "Invalid username or password.");
             }
-                // the error here will disapear when you write what is above
-//            sendResponse(response);
+              
+           // sendResponseOn(response);
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
