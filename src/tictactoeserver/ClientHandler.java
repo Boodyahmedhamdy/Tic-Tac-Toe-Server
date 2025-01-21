@@ -36,8 +36,9 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            in = new ObjectInputStream(clientSocket.getInputStream());
             out = new ObjectOutputStream(clientSocket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(clientSocket.getInputStream());
 
             while (true) {
                

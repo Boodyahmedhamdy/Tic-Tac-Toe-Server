@@ -51,44 +51,42 @@ public class DataAccessLayer {
         }
         return finalResult;
     }
-     public static boolean checkUser(String username, String password) throws SQLException {
-    boolean finalResult = false;
-    PreparedStatement st = con.prepareStatement("SELECT USERNAME FROM PLAYER WHERE USERNAME = ?");
-    st.setString(1, username);
-    ResultSet rs = st.executeQuery();
 
-    if (rs.next()) {
-        String userName = rs.getString("USERNAME");
-        if (userName.equals(userName)) {
-            finalResult = true;
+    public static boolean checkUser(String username, String password) throws SQLException {
+        boolean finalResult = false;
+        PreparedStatement st = con.prepareStatement("SELECT USERNAME FROM PLAYER WHERE USERNAME = ?");
+        st.setString(1, username);
+        ResultSet rs = st.executeQuery();
+
+        if (rs.next()) {
+            String userName = rs.getString("USERNAME");
+            if (userName.equals(userName)) {
+                finalResult = true;
+            }
         }
+        rs.close();
+        st.close();
+        return finalResult;
     }
-    rs.close();
-    st.close();
-    return finalResult;
-}
-     public static boolean checkPassword(String username, String password) throws SQLException {
-    boolean finalResult = false;
-    PreparedStatement st = con.prepareStatement("SELECT PASSWORD FROM PLAYER WHERE USERNAME = ?");
-    st.setString(1, username);
-    ResultSet rs = st.executeQuery();
 
-    if (rs.next()) {
-        String storedPassword = rs.getString("PASSWORD");
-        if (storedPassword.equals(password)) {
-            finalResult = true;
+    public static boolean checkPassword(String username, String password) throws SQLException {
+        boolean finalResult = false;
+        PreparedStatement st = con.prepareStatement("SELECT PASSWORD FROM PLAYER WHERE USERNAME = ?");
+        st.setString(1, username);
+        ResultSet rs = st.executeQuery();
+
+        if (rs.next()) {
+            String storedPassword = rs.getString("PASSWORD");
+            if (storedPassword.equals(password)) {
+                finalResult = true;
+            }
         }
+        rs.close();
+        st.close();
+        return finalResult;
     }
-    rs.close();
-    st.close();
-    return finalResult;
-}
-    
- 
-    
 
-
-   /* public static boolean checkPassword(String username, String password) throws SQLException {
+    /* public static boolean checkPassword(String username, String password) throws SQLException {
 =======
   /*  public static boolean checkPassword(String username, String password) throws SQLException {
 >>>>>>> a8ad00544455d1eee62ed4805605814c2f6e7034
@@ -108,6 +106,4 @@ public class DataAccessLayer {
         return finalResult;
 <<<<<<< HEAD
     }*/
-
-
 }
