@@ -9,7 +9,7 @@ package network.responses;
  *
  * @author HP
  */
-/*public class FailRegisterResponse extends RegisterResponse {
+public class FailRegisterResponse extends RegisterResponse {
     
     private String message;
 
@@ -27,4 +27,4 @@ package network.responses;
     
     
     
-}*/
+}

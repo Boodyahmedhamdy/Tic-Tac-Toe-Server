@@ -64,7 +64,7 @@ public class ClientHandler implements Runnable {
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
                 // replace with SuccessLoginResponse
-//                response = new LoginResponse(true, "Login successful!");
+//                response = new SuccessLoginResponse(true, "Login successful!");
                 
             } else {
                 // repalce by FailLoginResponse
