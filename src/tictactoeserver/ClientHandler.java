@@ -9,12 +9,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import network.actions.Action;
+import network.actions.SignOutAction;
 import network.requests.LoginRequest;
 import network.requests.RegisterRequest;
+import network.requests.Request;
+import network.requests.StartGameRequest;
 import network.responses.LoginResponse;
 import network.responses.RegisterResponse;
+import network.responses.Response;
+import network.responses.StartGameResponse;
 
 /**
  *
@@ -24,6 +31,7 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
+    public String username;
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -32,8 +40,9 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            in = new ObjectInputStream(clientSocket.getInputStream());
             out = new ObjectOutputStream(clientSocket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(clientSocket.getInputStream());
 
             while (true) {
                
@@ -43,7 +52,14 @@ public class ClientHandler implements Runnable {
                     handleLogin((LoginRequest) request);
                 } else if (request instanceof RegisterRequest) {
                     handleRegister((RegisterRequest) request);
-                } else {
+                } else if (request instanceof StartGameRequest) {
+                    handleStartGameRequest( (StartGameRequest) request);
+                    
+                } else if (request instanceof StartGameResponse) {
+                    handleStartGameResponse((StartGameResponse) request);
+                } else if (request instanceof SignOutAction) {
+                    handleSignOutAction( (SignOutAction) request );
+                } else{
                     System.out.println("Unknown request received.");
                 }
             }
@@ -103,15 +119,35 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void sendResponse(Object response) {
+
+    private void sendResponseOn(Response response, ObjectOutputStream outputStream) {
         try {
-            out.writeObject(response);
-            out.flush();
+            outputStream.writeObject(response);
+            outputStream.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void sendRequestOn(Request request, ObjectOutputStream outputStream) {
+        try {
+            outputStream.writeObject(request);
+            outputStream.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void sendActionOn(Action action, ObjectOutputStream outputStream) {
+        try {
+            outputStream.writeObject(action);
+            outputStream.flush();
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    
     private void close() {
         try {
             Server.clientVector.remove(this); 
@@ -119,6 +155,43 @@ public class ClientHandler implements Runnable {
             if (in != null) in.close();
             if (out != null) out.close();
         } catch (IOException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * sends the request to the suitable user (whose username is inside the response body)
+    */
+    private void handleStartGameRequest(StartGameRequest request) {
+        String playerUsername = request.getUsername();
+        Server.clientVector.forEach((clientHandler) -> {
+            if(clientHandler.username.equals(playerUsername)) {
+                sendRequestOn(request, clientHandler.out);
+            } 
+        });
+    }
+
+    /**
+     * sends the response to the suitable user (whose username is inside the response body)
+    */
+    private void handleStartGameResponse(StartGameResponse response) {
+        String playerUsername = response.getUsername();
+        Server.clientVector.forEach((ClientHandler) -> {
+            if(ClientHandler.username.equals(playerUsername)) {
+                sendResponseOn(response, ClientHandler.out);
+            }
+        });
+    }
+
+    /**
+     * updates the database as the Player is not playing and not online
+     */
+    private void handleSignOutAction(SignOutAction signOutAction) {
+        try {
+            DataAccessLayer.updateIsOnline(signOutAction.getUsername(), false);
+            DataAccessLayer.updateIsPlaying(signOutAction.getUsername(), false);
+            // kill the thread here
+        } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

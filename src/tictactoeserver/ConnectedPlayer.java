@@ -19,6 +19,10 @@ public class ConnectedPlayer {
     public ObjectOutputStream out;
     public int id;
 
+    public Socket getPlayerSocket() {
+        return playerSocket;
+    }
+
     public ConnectedPlayer(Socket playerSocket, int id) {
         try {
             this.playerSocket = playerSocket;
@@ -52,6 +56,9 @@ public class ConnectedPlayer {
             }
             if (in != null) {
                 in.close();
+            }
+            if (out != null) {
+                out.close();
             }
             if (out != null) {
                 out.close();

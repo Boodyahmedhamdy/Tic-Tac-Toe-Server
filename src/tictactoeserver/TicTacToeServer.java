@@ -23,11 +23,15 @@ public class TicTacToeServer extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-      //  Parent root = FXMLLoader.load(getClass().getResource("TestLogin.fxml"));
+        //  Parent root = FXMLLoader.load(getClass().getResource("TestLogin.fxml"));
         Parent root = FXMLLoader.load(getClass().getResource("TicTacToeServer.fxml"));
         Scene scene = new Scene(root);
 
-        
+        /*
+        DriverManager.registerDriver(new ClientDriver());
+        // Abdelrahman Elshreif Local Db Connection 
+        Connection con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
+         */
         stage.setScene(scene);
         stage.show();
 
