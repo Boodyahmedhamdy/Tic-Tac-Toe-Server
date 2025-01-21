@@ -6,15 +6,10 @@
 package tictactoeserver;
 
 import java.net.URL;
-import java.util.ArrayList;
-import static java.util.Collections.list;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.paint.Color;
@@ -23,8 +18,11 @@ import tictactoeserver.ui.states.MainScreenUiState;
 import tictactoeserver.Server;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
 
 /**
  *
@@ -102,11 +100,9 @@ public class TicTacToeServerController implements Initializable {
         try {
             // Get the local host address
             InetAddress localHost = InetAddress.getLocalHost();
-
             // Get the IP address as a string
             String ipAddress = localHost.getHostAddress();
 
-            // Print the IP address
             return ipAddress;
         } catch (UnknownHostException ex) {
             Logger.getLogger(TicTacToeServerController.class.getName()).log(Level.SEVERE, null, ex);
@@ -117,10 +113,10 @@ public class TicTacToeServerController implements Initializable {
     void turnSeverOff() {
         isServerRunning = false;
         if (server != null) {
-            server.close();
+            server.shutdown(); // Ensure all resources are cleaned up
         }
-        if(serverThread!=null){
-            serverThread.interrupt();
+        if (serverThread != null) {
+            serverThread.interrupt(); // Interrupt the server thread
         }
         uiState.setServerStatus(MainScreenUiState.OFF);
         textServerStatus.setFill(Color.RED);

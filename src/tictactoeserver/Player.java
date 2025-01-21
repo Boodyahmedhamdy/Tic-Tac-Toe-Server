@@ -5,11 +5,13 @@
  */
 package tictactoeserver;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Abdelrahman Elshreif
  */
-public class Player {
+public class Player implements Serializable{
 
     private String userName;
     private String password;
@@ -17,7 +19,11 @@ public class Player {
     private int matchesNum;
     private boolean isOnLine;
     private boolean isPlaying;
-
+ public Player(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+      
+    }
     public Player(String userName, String password, int rank, int matchesNum, boolean isOnLine, boolean isPlaying) {
         this.userName = userName;
         this.password = password;

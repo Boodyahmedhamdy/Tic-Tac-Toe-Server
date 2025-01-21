@@ -3,11 +3,11 @@ package tictactoeserver;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tictactoeserver.PlayerSocket;
-import tictactoeserver.Server;
 
 /**
  * @author Abdelrahman_Elshreif
@@ -15,15 +15,21 @@ import tictactoeserver.Server;
 public class ConnectedPlayer {
 
     public Socket playerSocket;
-    public DataInputStream in;
+    public ObjectInputStream in;
+    public ObjectOutputStream out;
     public int id;
+
+    public Socket getPlayerSocket() {
+        return playerSocket;
+    }
 
     public ConnectedPlayer(Socket playerSocket, int id) {
         try {
             this.playerSocket = playerSocket;
             this.id = id;
             System.out.println("Player " + id + ": Connected");
-            this.in = new DataInputStream(new BufferedInputStream(playerSocket.getInputStream()));
+            this.in = new ObjectInputStream(playerSocket.getInputStream());
+            this.out = new ObjectOutputStream(playerSocket.getOutputStream());
         } catch (IOException ex) {
             Logger.getLogger(ConnectedPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -34,8 +40,8 @@ public class ConnectedPlayer {
         String line = " ";
         while (!line.equals(Server.STOP_STRING)) {
             try {
-                line = in.readUTF();
-            } catch (IOException ex) {
+                line = (String) in.readObject();
+            } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(ConnectedPlayer.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("Player " + id + " :" + line);
@@ -45,13 +51,21 @@ public class ConnectedPlayer {
 
     public void close() {
         try {
-            playerSocket.close();
-            in.close();
-
+            if (playerSocket != null) {
+                playerSocket.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (out != null) {
+                out.close();
+            }
         } catch (IOException ex) {
             Logger.getLogger(ConnectedPlayer.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
 }

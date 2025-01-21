@@ -60,8 +60,10 @@ public class TestLoginController implements Initializable {
        try {
         boolean passwordResult = DataAccessLayer.checkPassword(username, password);
         boolean userResult=DataAccessLayer.checkUser(username, password);
+        int result = DataAccessLayer.getRANK(username, password);
         if(userResult && passwordResult){
-         lable.setText("Exist and wright password");
+         lable.setText("Exist and wright password"+ result);
+         
         }else if(userResult&& !passwordResult ){
              lable.setText("Exist and wrong password");
         }else if(!userResult){

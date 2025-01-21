@@ -1,11 +1,13 @@
 package tictactoeserver;
-
 import java.io.IOException;
 import tictactoeserver.ConnectedPlayer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tictactoeserver.GamePlayAction;
 
 
 /*
@@ -19,17 +21,27 @@ public class Server {
     private int playerIdx = 0;
     private boolean isRunning = false;
 
+    private ArrayList<ConnectedPlayer> activePlayers;
+
+    
+ public static Vector<ClientHandler> clientVector = new Vector<>();
+
     public Server() {
     }
 
     public void start() {
-            isRunning = true;
+        isRunning = true;
         try {
             this.server = new ServerSocket(PORT);
             System.out.println("Waiting For Players....");
+            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
             while (isRunning) {
                 try {
-                    initPlayerConnection();
+                     Socket playerSocket = server.accept();
+                    initPlayerConnection(playerSocket);
+                    ClientHandler clientHandler = new ClientHandler(playerSocket);
+                    clientVector.add(clientHandler);
+                      new Thread(clientHandler).start();
                 } catch (IOException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error accepting player connection", ex);
                 }
@@ -41,10 +53,27 @@ public class Server {
         }
     }
 
+    public void shutdown() {
+        System.out.println("Shutting down server and closing all connections...");
+        isRunning = false;
+        for (ConnectedPlayer player : activePlayers) {
+            try {
+                player.getPlayerSocket().close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error closing player socket", ex);
+            }
+        }
+
+        // Clear the list of active players
+        activePlayers.clear();
+
+        // Close the server socket
+        close();
+    }
+
     // Turning Off Server
     public void close() {
         isRunning = false;
-
         try {
             if (this.server != null && !this.server.isClosed()) {
                 this.server.close();
@@ -55,18 +84,28 @@ public class Server {
 
     }
 
-    public void initPlayerConnection() throws IOException {
-        Socket playerSocket = server.accept();
-
+    public void initPlayerConnection( Socket playerSocket) throws IOException {
+       
         if (playerSocket.isConnected()) {
-            new Thread(() -> {
+            Thread playerListener = new Thread(() -> {
                 playerIdx++;
                 ConnectedPlayer player = new ConnectedPlayer(playerSocket, playerIdx);
-
-                player.readMessages();
-                player.close();
-
-            }).start();
+                if (isRunning) {
+                    player.readMessages();
+                } else {
+                    try {
+                        playerSocket.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                playerIdx--;
+            });
+            if (isRunning) {
+                playerListener.start();
+            } else {
+                playerListener.interrupt();
+            }
         }
     }
 }

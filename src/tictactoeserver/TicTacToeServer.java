@@ -7,6 +7,7 @@ package tictactoeserver;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.concurrent.ThreadPoolExecutor;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,17 +23,18 @@ public class TicTacToeServer extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-//        Parent root = FXMLLoader.load(getClass().getResource("TestLogin.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("TicTacToeServer.fxml"));
+          Parent root = FXMLLoader.load(getClass().getResource("TestLogin.fxml"));
+        //Parent root = FXMLLoader.load(getClass().getResource("TicTacToeServer.fxml"));
         Scene scene = new Scene(root);
 
         /*
-          DriverManager.registerDriver(new ClientDriver());
-            Connection con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
+        DriverManager.registerDriver(new ClientDriver());
+        // Abdelrahman Elshreif Local Db Connection 
+        Connection con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
          */
         stage.setScene(scene);
-        stage.setTitle("Tic Tac Teo Server");
         stage.show();
+
     }
 
     /**
