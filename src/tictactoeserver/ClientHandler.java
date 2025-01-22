@@ -1,8 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+// * To change this license header, choose License Headers in Project Properties.
+// * To change this template file, choose Tools | Templates
+// * and open the template in the editor.
+// */
 package tictactoeserver;
 
 import java.io.IOException;
@@ -32,99 +32,99 @@ import network.responses.SuccessRegisterResponse;
  * @author Laptop World
  */
 public class ClientHandler implements Runnable {
+    
     private final Socket clientSocket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     public String username;
-
+    
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
-
+    
     @Override
     public void run() {
         try {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(clientSocket.getInputStream());
-
+            
             while (true) {
-               
+                System.out.println("**************SERVER CLIENT-HANDLER RUN()BEFORE READ OBJECT ************");
                 Object request = in.readObject();
-
+                System.out.println("**************SERVER CLIENT-HANDLER RUN()AFTER READ***********");
                 if (request instanceof LoginRequest) {
                     handleLogin((LoginRequest) request);
                 } else if (request instanceof RegisterRequest) {
                     handleRegister((RegisterRequest) request);
                 } else if (request instanceof StartGameRequest) {
-                    handleStartGameRequest( (StartGameRequest) request);
+                    handleStartGameRequest((StartGameRequest) request);
                     
                 } else if (request instanceof StartGameResponse) {
                     handleStartGameResponse((StartGameResponse) request);
                 } else if (request instanceof SignOutAction) {
-                    handleSignOutAction( (SignOutAction) request );
-                } else{
+                    handleSignOutAction((SignOutAction) request);
+                } else {
                     System.out.println("Unknown request received.");
                 }
             }
         } catch (IOException | ClassNotFoundException ex) {
             System.out.println("Client disconnected: " + clientSocket.getInetAddress());
-        } finally {
-            close();
         }
     }
-
+    
     private void handleLogin(LoginRequest request) {
         try {
             System.out.println("Login request received for username: " + request.getUsername());
             String userName = request.getUsername();
-            String Password =request.getPassword();
-            int rank = DataAccessLayer.getRANK(userName,Password);
+            String Password = request.getPassword();
+            int rank = DataAccessLayer.getRANK(userName, Password);
             boolean isUserValid = DataAccessLayer.checkUser(userName, Password);
             boolean isPasswordValid = DataAccessLayer.checkPassword(userName, Password);
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
-                 response = new SuccessLoginResponse(userName,rank);
+                response = new SuccessLoginResponse(userName, rank);
                 
             } else {
-                response = new FailLoginResponse( "Invalid username or password.");
+                response = new FailLoginResponse("Invalid username or password.");
             }
-            // the error here will disapear when you write what is above
-          //  ObjectOutputStream outputStream = new ObjectOutputStream(out);
-          out.reset();
-             sendResponseOn(response, out );
+
+            
+            sendResponseOn(response, out);
+
         } catch (Exception ex) {
+            System.out.println("*************FROM HANDLE LOGIN****************");
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void handleRegister(RegisterRequest request) {
         try {
             System.out.println("Register request received for username: " + request.getUsername());
             String userName = request.getUsername();
-            String Password =request.getPassword();
-            int rank = DataAccessLayer.getRANK(userName,Password);
+            String Password = request.getPassword();
+            int rank = DataAccessLayer.getRANK(userName, Password);
             boolean isRegistered = DataAccessLayer.insert(new Player(
                     request.getUsername(),
                     request.getPassword(),
                     0, 0, true, false
             ));
-
+            
             RegisterResponse response;
             if (isRegistered) {
                 
-               response = new SuccessRegisterResponse(userName,rank);
+                response = new SuccessRegisterResponse(userName, rank);
             } else {
-                 response = new FailRegisterResponse( "Invalid username or password.");
+                response = new FailRegisterResponse("Invalid username or password.");
             }
-              
-            sendResponseOn(response,out);
+
+            sendResponseOn(response, out);
+
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-
+    
     private void sendResponseOn(Response response, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(response);
@@ -151,38 +151,45 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
     
     private void close() {
         try {
-            Server.clientVector.remove(this); 
-            if (clientSocket != null) clientSocket.close();
-            if (in != null) in.close();
-            if (out != null) out.close();
+            Server.clientVector.remove(this);
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     /**
-     * sends the request to the suitable user (whose username is inside the response body)
-    */
+     * sends the request to the suitable user (whose username is inside the
+     * response body)
+     */
     private void handleStartGameRequest(StartGameRequest request) {
         String playerUsername = request.getUsername();
         Server.clientVector.forEach((clientHandler) -> {
-            if(clientHandler.username.equals(playerUsername)) {
+            if (clientHandler.username.equals(playerUsername)) {
                 sendRequestOn(request, clientHandler.out);
-            } 
+            }
         });
     }
 
     /**
-     * sends the response to the suitable user (whose username is inside the response body)
-    */
+     * sends the response to the suitable user (whose username is inside the
+     * response body)
+     */
     private void handleStartGameResponse(StartGameResponse response) {
         String playerUsername = response.getUsername();
         Server.clientVector.forEach((ClientHandler) -> {
-            if(ClientHandler.username.equals(playerUsername)) {
+            if (ClientHandler.username.equals(playerUsername)) {
                 sendResponseOn(response, ClientHandler.out);
             }
         });
@@ -195,7 +202,7 @@ public class ClientHandler implements Runnable {
         try {
             DataAccessLayer.updateIsOnline(signOutAction.getUsername(), false);
             DataAccessLayer.updateIsPlaying(signOutAction.getUsername(), false);
-            // kill the thread here
+//             kill the thread here
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
