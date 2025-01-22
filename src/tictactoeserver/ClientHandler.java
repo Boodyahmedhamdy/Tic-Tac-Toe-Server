@@ -32,34 +32,34 @@ import network.responses.SuccessRegisterResponse;
  * @author Laptop World
  */
 public class ClientHandler implements Runnable {
-
+    
     private final Socket clientSocket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     public String username;
-
+    
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
-
+    
     @Override
     public void run() {
         try {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(clientSocket.getInputStream());
-
+            
             while (true) {
-                System.out.println("**************FROM CLIENT HANDLER RUN()BEFORE************");
+                System.out.println("**************SERVER CLIENT-HANDLER RUN()BEFORE READ OBJECT ************");
                 Object request = in.readObject();
-                System.out.println("**************FROM CLIENT HANDLER RUN()AFTER RD***********");
+                System.out.println("**************SERVER CLIENT-HANDLER RUN()AFTER READ***********");
                 if (request instanceof LoginRequest) {
                     handleLogin((LoginRequest) request);
                 } else if (request instanceof RegisterRequest) {
                     handleRegister((RegisterRequest) request);
                 } else if (request instanceof StartGameRequest) {
                     handleStartGameRequest((StartGameRequest) request);
-
+                    
                 } else if (request instanceof StartGameResponse) {
                     handleStartGameResponse((StartGameResponse) request);
                 } else if (request instanceof SignOutAction) {
@@ -72,7 +72,7 @@ public class ClientHandler implements Runnable {
             System.out.println("Client disconnected: " + clientSocket.getInetAddress());
         }
     }
-
+    
     private void handleLogin(LoginRequest request) {
         try {
             System.out.println("Login request received for username: " + request.getUsername());
@@ -84,18 +84,18 @@ public class ClientHandler implements Runnable {
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
                 response = new SuccessLoginResponse(userName, rank);
-
+                
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
             }
-//            // the error here will disapear when you write what is above
-//            // sendResponse(response);
+            
+            sendResponseOn(response, out);
         } catch (Exception ex) {
             System.out.println("*************FROM HANDLE LOGIN****************");
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void handleRegister(RegisterRequest request) {
         try {
             System.out.println("Register request received for username: " + request.getUsername());
@@ -107,21 +107,21 @@ public class ClientHandler implements Runnable {
                     request.getPassword(),
                     0, 0, true, false
             ));
-
+            
             RegisterResponse response;
             if (isRegistered) {
-
+                
                 response = new SuccessRegisterResponse(userName, rank);
             } else {
                 response = new FailRegisterResponse("Invalid username or password.");
             }
 //
-             //sendResponseOn(response);
+            sendResponseOn(response, out);
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void sendResponseOn(Response response, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(response);
@@ -130,7 +130,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void sendRequestOn(Request request, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(request);
@@ -139,7 +139,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void sendActionOn(Action action, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(action);
@@ -148,7 +148,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
     private void close() {
         try {
             Server.clientVector.remove(this);
@@ -205,4 +205,3 @@ public class ClientHandler implements Runnable {
         }
     }
 }
-
