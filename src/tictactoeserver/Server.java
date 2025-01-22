@@ -34,14 +34,11 @@ public class Server {
         try {
             this.server = new ServerSocket(PORT);
             System.out.println("Waiting For Players....");
-            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+//            Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
             while (isRunning) {
                 try {
-                     Socket playerSocket = server.accept();
+                    Socket playerSocket = server.accept();
                     initPlayerConnection(playerSocket);
-                    ClientHandler clientHandler = new ClientHandler(playerSocket);
-                    clientVector.add(clientHandler);
-                      new Thread(clientHandler).start();
                 } catch (IOException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error accepting player connection", ex);
                 }
@@ -52,24 +49,24 @@ public class Server {
             close();
         }
     }
-
-    public void shutdown() {
-        System.out.println("Shutting down server and closing all connections...");
-        isRunning = false;
-        for (ConnectedPlayer player : activePlayers) {
-            try {
-                player.getPlayerSocket().close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error closing player socket", ex);
-            }
-        }
-
-        // Clear the list of active players
-        activePlayers.clear();
-
-        // Close the server socket
-        close();
-    }
+//
+//    public void shutdown() {
+//        System.out.println("Shutting down server and closing all connections...");
+//        isRunning = false;
+//        for (ConnectedPlayer player : activePlayers) {
+//            try {
+//                player.getPlayerSocket().close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error closing player socket", ex);
+//            }
+//        }
+//
+//        // Clear the list of active players
+//        activePlayers.clear();
+//
+//        // Close the server socket
+//        close();
+//    }
 
     // Turning Off Server
     public void close() {
@@ -87,25 +84,15 @@ public class Server {
     public void initPlayerConnection( Socket playerSocket) throws IOException {
        
         if (playerSocket.isConnected()) {
-            Thread playerListener = new Thread(() -> {
-                playerIdx++;
-                ConnectedPlayer player = new ConnectedPlayer(playerSocket, playerIdx);
-                if (isRunning) {
-                    player.readMessages();
-                } else {
-                    try {
-                        playerSocket.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                playerIdx--;
-            });
+            ClientHandler clientHandler = new ClientHandler(playerSocket);
+            Thread playerListenr = new Thread(clientHandler);
+            clientVector.add(clientHandler);
             if (isRunning) {
-                playerListener.start();
+                playerListenr.start();
             } else {
-                playerListener.interrupt();
+                playerListenr.interrupt();
             }
+
         }
     }
 }

@@ -27,7 +27,9 @@ public class DataAccessLayer {
     static {
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
+//            con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/TicTacToe", "root", "root");
+
             PreparedStatement st = con.prepareStatement("SELECT * FROM Player", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             rs = st.executeQuery();
 
@@ -156,27 +158,4 @@ public class DataAccessLayer {
             );
         return player;
     }
-    
-    
-
-    /* public static boolean checkPassword(String username, String password) throws SQLException {
-=======
-  /*  public static boolean checkPassword(String username, String password) throws SQLException {
->>>>>>> a8ad00544455d1eee62ed4805605814c2f6e7034
-        boolean finalResult = false;
-        PreparedStatement st = con.prepareStatement("SELECT PASSWORD FROM PLAYER WHERE USERNAME = ?");
-        st.setString(1, username);
-        ResultSet rs = st.executeQuery();
-
-        if (rs.next()) {
-            String storedPassword = rs.getString("PASSWORD");
-            if (storedPassword.equals(password)) {
-                finalResult = true;
-            }
-        }
-        rs.close();
-        st.close();
-        return finalResult;
-<<<<<<< HEAD
-    }*/
 }
