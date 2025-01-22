@@ -90,7 +90,9 @@ public class ClientHandler implements Runnable {
                 response = new FailLoginResponse( "Invalid username or password.");
             }
             // the error here will disapear when you write what is above
-            // sendResponse(response);
+          //  ObjectOutputStream outputStream = new ObjectOutputStream(out);
+          out.reset();
+             sendResponseOn(response, out );
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -116,7 +118,7 @@ public class ClientHandler implements Runnable {
                  response = new FailRegisterResponse( "Invalid username or password.");
             }
               
-           // sendResponseOn(response);
+            sendResponseOn(response,out);
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
