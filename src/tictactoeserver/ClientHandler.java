@@ -32,47 +32,53 @@ import network.responses.SuccessRegisterResponse;
  * @author Laptop World
  */
 public class ClientHandler implements Runnable {
-    
+
     private final Socket clientSocket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     public String username;
-    
+
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
-    
+
     @Override
     public void run() {
         try {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(clientSocket.getInputStream());
-            
+
             while (true) {
-                System.out.println("**************SERVER CLIENT-HANDLER RUN()BEFORE READ OBJECT ************");
+                System.out.println("**************SERVER CLIENT-HANDLER RUN() BEFORE READ OBJECT ************");
                 Object request = in.readObject();
-                System.out.println("**************SERVER CLIENT-HANDLER RUN()AFTER READ***********");
+                System.out.println("**************SERVER CLIENT-HANDLER RUN() AFTER READ OBJECT ************");
+
                 if (request instanceof LoginRequest) {
+                    System.out.println("Login request received for username: " + ((LoginRequest) request).getUsername());
                     handleLogin((LoginRequest) request);
                 } else if (request instanceof RegisterRequest) {
+                    System.out.println("Register request received for username: " + ((RegisterRequest) request).getUsername());
                     handleRegister((RegisterRequest) request);
                 } else if (request instanceof StartGameRequest) {
+                    System.out.println("StartGameRequest received for username: " + ((StartGameRequest) request).getUsername());
                     handleStartGameRequest((StartGameRequest) request);
-                    
                 } else if (request instanceof StartGameResponse) {
+                    System.out.println("StartGameResponse received for username: " + ((StartGameResponse) request).getUsername());
                     handleStartGameResponse((StartGameResponse) request);
                 } else if (request instanceof SignOutAction) {
+                    System.out.println("SignOutAction received for username: " + ((SignOutAction) request).getUsername());
                     handleSignOutAction((SignOutAction) request);
                 } else {
-                    System.out.println("Unknown request received.");
+                    System.out.println("Unknown request received: " + request.getClass().getSimpleName());
                 }
             }
         } catch (IOException | ClassNotFoundException ex) {
             System.out.println("Client disconnected: " + clientSocket.getInetAddress());
+            ex.printStackTrace(); // Add this line to print the stack trace
         }
     }
-    
+
     private void handleLogin(LoginRequest request) {
         try {
             System.out.println("Login request received for username: " + request.getUsername());
@@ -84,18 +90,18 @@ public class ClientHandler implements Runnable {
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
                 response = new SuccessLoginResponse(userName, rank);
-                
+
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
             }
-            
+
             sendResponseOn(response, out);
         } catch (Exception ex) {
             System.out.println("*************FROM HANDLE LOGIN****************");
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void handleRegister(RegisterRequest request) {
         try {
             System.out.println("Register request received for username: " + request.getUsername());
@@ -107,10 +113,10 @@ public class ClientHandler implements Runnable {
                     request.getPassword(),
                     0, 0, true, false
             ));
-            
+
             RegisterResponse response;
             if (isRegistered) {
-                
+
                 response = new SuccessRegisterResponse(userName, rank);
             } else {
                 response = new FailRegisterResponse("Invalid username or password.");
@@ -121,7 +127,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void sendResponseOn(Response response, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(response);
@@ -130,7 +136,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void sendRequestOn(Request request, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(request);
@@ -139,7 +145,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void sendActionOn(Action action, ObjectOutputStream outputStream) {
         try {
             outputStream.writeObject(action);
@@ -148,7 +154,7 @@ public class ClientHandler implements Runnable {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void close() {
         try {
             Server.clientVector.remove(this);
