@@ -1,10 +1,12 @@
 package network.actions;
 
+import network.requests.Request;
+
 /**
  *
  * @author HP
  */
-public class SignOutAction extends Action {
+public class SignOutAction extends Request {
     
     private String username;
 
