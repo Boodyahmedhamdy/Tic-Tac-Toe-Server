@@ -10,12 +10,13 @@ package network.responses;
  * @author HP
  */
 import java.io.Serializable;
+
 public class LoginResponse extends Response {
-   
+
+    private static final long serialVersionUID = 1L;
 
     public LoginResponse() {
-        
+
     }
 
-   
 }

@@ -12,6 +12,7 @@ package network.responses;
 import java.io.Serializable;
 
 public class RegisterResponse extends Response {
+    private static final long serialVersionUID = 1L;
     public RegisterResponse() {
        
     }
