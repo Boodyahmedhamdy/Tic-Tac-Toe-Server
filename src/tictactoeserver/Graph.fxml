@@ -10,7 +10,7 @@
    <center>
       <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <top>
-            <Label prefHeight="75.0" prefWidth="46.0" text="Server " BorderPane.alignment="CENTER" />
+            <Label prefHeight="75.0" prefWidth="386.0" text="       Number off online vs offline players in our server" BorderPane.alignment="CENTER" />
          </top>
          <center>
             <BarChart fx:id="barChart" prefHeight="307.0" prefWidth="600.0" BorderPane.alignment="CENTER">

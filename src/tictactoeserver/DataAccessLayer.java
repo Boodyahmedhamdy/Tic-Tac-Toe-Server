@@ -101,7 +101,30 @@ public class DataAccessLayer {
         st.close();
         return rank;
     }
+     public static int getOnLinePlayersNumber() throws SQLException {
+    int num = 0;
+    PreparedStatement st = con.prepareStatement("SELECT COUNT(*) AS online_count FROM PLAYER WHERE ISONLINE = true");
+    ResultSet rs = st.executeQuery();
+    if (rs.next()) {
+        num = rs.getInt("online_count"); 
+    }
+    rs.close();
+    st.close();
+    return num; 
+}
+     public static int getoffLinePlayersNumber() throws SQLException {
+    int num = 0;
 
+    PreparedStatement st = con.prepareStatement("SELECT COUNT(*) AS offline_count FROM PLAYER WHERE ISONLINE = false");
+    ResultSet rs = st.executeQuery();
+    if (rs.next()) {
+        num = rs.getInt("offline_count"); 
+    }
+    rs.close();
+    st.close();
+    return num; 
+}
+    
     /**
      * gets a the player with passed username. returns null if any player isn't
      * found
