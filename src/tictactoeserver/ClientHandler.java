@@ -57,18 +57,33 @@ public class ClientHandler implements Runnable {
                 if (request instanceof LoginRequest) {
                     System.out.println("Login request received for username: " + ((LoginRequest) request).getUsername());
                     handleLogin((LoginRequest) request);
+                    
+                    
                 } else if (request instanceof RegisterRequest) {
                     System.out.println("Register request received for username: " + ((RegisterRequest) request).getUsername());
                     handleRegister((RegisterRequest) request);
+                    
+                    
                 } else if (request instanceof StartGameRequest) {
+
+
                     System.out.println("StartGameRequest received for username: " + ((StartGameRequest) request).getUsername());
                     handleStartGameRequest((StartGameRequest) request);
+                    
+                    
                 } else if (request instanceof StartGameResponse) {
-                    System.out.println("StartGameResponse received for username: " + ((StartGameResponse) request).getUsername());
+                    System.out.println("StartGameResponse received for username: " + ((StartGameRequest) request).getUsername());
+
                     handleStartGameResponse((StartGameResponse) request);
+                    
+                    
                 } else if (request instanceof SignOutAction) {
+
                     System.out.println("SignOutAction received for username: " + ((SignOutAction) request).getUsername());
                     handleSignOutAction((SignOutAction) request);
+                    
+                    
+
                 } else {
                     System.out.println("Unknown request received: " + request.getClass().getSimpleName());
                 }
@@ -89,7 +104,10 @@ public class ClientHandler implements Runnable {
             boolean isPasswordValid = DataAccessLayer.checkPassword(userName, Password);
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
+
                 response = new SuccessLoginResponse(userName, rank);
+                username = request.getUsername();
+
 
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
@@ -142,8 +160,12 @@ public class ClientHandler implements Runnable {
 
     public void sendRequestOn(Request request, ObjectOutputStream outputStream) {
         try {
+            System.out.println("Sending " + request.getClass().getSimpleName() + " from sendRequestOn");
+            
             outputStream.writeObject(request);
             outputStream.flush();
+            
+            System.out.println("sent " + request.getClass().getSimpleName() + " from sendRequestOn");
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -180,12 +202,18 @@ public class ClientHandler implements Runnable {
      * response body)
      */
     private void handleStartGameRequest(StartGameRequest request) {
+        System.out.println("start handling StartGameRequest");
         String playerUsername = request.getUsername();
+
         Server.clientVector.forEach((handler) -> {
+            System.out.println("searching for the client name");
+            System.out.println("the current one is " + handler.username);
+
             if (handler.username.equals(playerUsername)) {
                 sendRequestOn(request, handler.out);
             }
         });
+        System.out.println("Finished handling StartGameRequest");
     }
 
     /**
@@ -193,12 +221,18 @@ public class ClientHandler implements Runnable {
      * response body)
      */
     private void handleStartGameResponse(StartGameResponse response) {
+        System.out.println("start handling StartGameResponse");
         String playerUsername = response.getUsername();
+
         Server.clientVector.forEach((handler) -> {
+            System.out.println("searching for the client name");
+            System.out.println("the current one is " + handler.username);
+
             if (handler.username.equals(playerUsername)) {
                 sendResponseOn(response, handler.out);
             }
         });
+        System.out.println("Finished handling StartGameResponse");
     }
 
     /**
@@ -206,9 +240,12 @@ public class ClientHandler implements Runnable {
      */
     private void handleSignOutAction(SignOutAction signOutAction) {
         try {
+            System.out.println("Start handling " + signOutAction.getClass().getSimpleName());
             DataAccessLayer.updateIsOnline(signOutAction.getUsername(), false);
             DataAccessLayer.updateIsPlaying(signOutAction.getUsername(), false);
 //             kill the thread here
+            System.out.println("Here Must kill the Thread because signout is handled");
+
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
