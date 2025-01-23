@@ -178,9 +178,9 @@ public class ClientHandler implements Runnable {
      */
     private void handleStartGameRequest(StartGameRequest request) {
         String playerUsername = request.getUsername();
-        Server.clientVector.forEach((clientHandler) -> {
-            if (clientHandler.username.equals(playerUsername)) {
-                sendRequestOn(request, clientHandler.out);
+        Server.clientVector.forEach((handler) -> {
+            if (handler.username.equals(playerUsername)) {
+                sendRequestOn(request, handler.out);
             }
         });
     }
@@ -191,9 +191,9 @@ public class ClientHandler implements Runnable {
      */
     private void handleStartGameResponse(StartGameResponse response) {
         String playerUsername = response.getUsername();
-        Server.clientVector.forEach((ClientHandler) -> {
-            if (ClientHandler.username.equals(playerUsername)) {
-                sendResponseOn(response, ClientHandler.out);
+        Server.clientVector.forEach((handler) -> {
+            if (handler.username.equals(playerUsername)) {
+                sendResponseOn(response, handler.out);
             }
         });
     }
