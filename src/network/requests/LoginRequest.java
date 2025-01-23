@@ -10,6 +10,8 @@ package network.requests;
  * @author HP
  */
 public class LoginRequest extends Request {
+
+    private static final long serialVersionUID = 1L;
     private String username;
     private String password;
 

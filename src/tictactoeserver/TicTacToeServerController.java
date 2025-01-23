@@ -112,9 +112,9 @@ public class TicTacToeServerController implements Initializable {
 
     void turnSeverOff() {
         isServerRunning = false;
-        if (server != null) {
-            server.shutdown(); // Ensure all resources are cleaned up
-        }
+//        if (server != null) {
+//            server.shutdown(); // Ensure all resources are cleaned up
+//        }
         if (serverThread != null) {
             serverThread.interrupt(); // Interrupt the server thread
         }
