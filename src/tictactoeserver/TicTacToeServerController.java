@@ -5,6 +5,7 @@
  */
 package tictactoeserver;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -22,8 +23,12 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
+import javafx.stage.Stage;
 
 /**
  *
@@ -91,6 +96,15 @@ public class TicTacToeServerController implements Initializable {
     @FXML
     void handleShowStatisticsBtn(ActionEvent event) {
         System.out.println("Statistics Button Clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Graph.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) btnPlayersStatistics.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void toggle() {
