@@ -41,7 +41,7 @@ public class TestLoginController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         
         registerbtn.setOnAction((event)->{
-            Player player = new Player(nameField.getText(),passwordField.getText(),0,0,false,false);
+            Player player = new Player(nameField.getText(),passwordField.getText(),0,0,true,false);
             try {
                  boolean result = DataAccessLayer.insert(player);
                     if(result==true){
