@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 
 /**
@@ -36,6 +37,8 @@ public class TicTacToeServerController implements Initializable {
     private Text textServerIp;
     @FXML
     private ListView<String> lvAvailablePlayers;
+    
+    public static ObservableList<String> activePorts;
     @FXML
     private Button btnToggleServer;
     @FXML
@@ -46,19 +49,35 @@ public class TicTacToeServerController implements Initializable {
     private Thread serverThread;
     Server server;
     private volatile boolean isServerRunning = false;
-    MainScreenUiState uiState;
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+    public static MainScreenUiState uiState;
+    static {
+        System.out.println("MainScreenUiState creating... ");
         uiState = new MainScreenUiState(
                 MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
         );
+        System.out.println("before creating active ports");
+        activePorts = FXCollections.observableArrayList();
+        System.out.println("After creating active ports");
+
+        System.out.println("MainScreenUiState created... ");
+    }
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // TODO
+//        uiState = new MainScreenUiState(
+//                MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
+//        );
+        activePorts = FXCollections.observableArrayList();
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
         textErrorMessage.setText(uiState.getErrorMessage());
-        lvAvailablePlayers.setItems(uiState.getPlayers());
-
+        System.out.println(uiState.getPlayers().toString() + " before ");
+        uiState.setPlayers(
+                FXCollections.observableList(Server.getOnlinePlayers())
+        );
+        lvAvailablePlayers.setItems(activePorts);
+        System.out.println(uiState.getPlayers().toString() + " After ");
     }
 
     @FXML
