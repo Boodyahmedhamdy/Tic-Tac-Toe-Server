@@ -10,10 +10,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import network.actions.Action;
 import network.actions.SignOutAction;
+import network.requests.GetAvailablePlayersRequest;
 import network.requests.LoginRequest;
 import network.requests.RegisterRequest;
 import network.requests.Request;
@@ -24,6 +26,7 @@ import network.responses.LoginResponse;
 import network.responses.RegisterResponse;
 import network.responses.Response;
 import network.responses.StartGameResponse;
+import network.responses.SuccessGetAvaialbePlayersResponse;
 import network.responses.SuccessLoginResponse;
 import network.responses.SuccessRegisterResponse;
 
@@ -64,7 +67,15 @@ public class ClientHandler implements Runnable {
                     handleRegister((RegisterRequest) request);
                     
                     
-                } else if (request instanceof StartGameRequest) {
+                } else if(request instanceof GetAvailablePlayersRequest) {
+//                    System.out.println("GetAvailablePlayersRequest request received for username: " + ((GetAvailablePlayersRequest) request).getUsername());
+                    System.out.println("GetAvailablePlayersRequest request received for username: " + ((GetAvailablePlayersRequest) request));
+                    handleGetAvailablePlayersRequest((GetAvailablePlayersRequest) request);
+                
+                } 
+                
+                
+                else if (request instanceof StartGameRequest) {
 
 
                     System.out.println("StartGameRequest received for username: " + ((StartGameRequest) request).getUsername());
@@ -246,5 +257,19 @@ public class ClientHandler implements Runnable {
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void handleGetAvailablePlayersRequest(GetAvailablePlayersRequest getAvailablePlayersRequest) {
+        ArrayList<String> usernames = new ArrayList<>();
+        Server.clientVector.forEach((handler) -> {
+            if(!handler.username.equals(this.username)){
+                usernames.add(handler.username);
+            }
+        });
+        System.out.println("got list of usernames " + usernames);
+        SuccessGetAvaialbePlayersResponse response = new SuccessGetAvaialbePlayersResponse(usernames);
+        sendResponseOn(response, this.out);
+        System.out.println("sent SuccessGetAvaialbePlayersResponse to client");
+        
     }
 }
