@@ -18,12 +18,14 @@ import network.actions.Action;
 import network.actions.SignOutAction;
 import network.requests.GetAvailablePlayersRequest;
 import network.requests.LoginRequest;
+import network.requests.PlayAtRequest;
 import network.requests.RegisterRequest;
 import network.requests.Request;
 import network.requests.StartGameRequest;
 import network.responses.FailLoginResponse;
 import network.responses.FailRegisterResponse;
 import network.responses.LoginResponse;
+import network.responses.PlayAtResponse;
 import network.responses.RegisterResponse;
 import network.responses.Response;
 import network.responses.StartGameResponse;
@@ -87,8 +89,11 @@ public class ClientHandler implements Runnable {
 
                     System.out.println("SignOutAction received for username: " + ((SignOutAction) request).getUsername());
                     handleSignOutAction((SignOutAction) request);
-
-                } else {
+                    
+                }else if(request instanceof PlayAtRequest){
+                    System.out.println("PlayAt request received for username: " + ((PlayAtRequest) request).getFrom());
+                    handlePlayAt((PlayAtRequest) request);
+                }else {
                     System.out.println("Unknown request received: " + request.getClass().getSimpleName());
                 }
             }
@@ -276,4 +281,11 @@ public class ClientHandler implements Runnable {
         System.out.println("sent SuccessGetAvaialbePlayersResponse to client");
        
     }
+    
+        private void handlePlayAt(PlayAtRequest request) {
+            System.out.println("PlayAt request received for username: " + request.getFrom());
+            PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol());
+            sendResponseOn(response, out);
+        }
+
 }
