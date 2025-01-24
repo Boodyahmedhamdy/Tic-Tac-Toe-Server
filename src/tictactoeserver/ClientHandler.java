@@ -113,6 +113,7 @@ public class ClientHandler implements Runnable {
 
                 response = new SuccessLoginResponse(userName, rank);
                 username = request.getUsername();
+                TicTacToeServerController.activePlayers.add(userName);
 
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
@@ -264,14 +265,17 @@ public class ClientHandler implements Runnable {
     private void handleGetAvailablePlayersRequest(GetAvailablePlayersRequest getAvailablePlayersRequest) {
         ArrayList<String> usernames = new ArrayList<>();
         Server.clientVector.forEach((handler) -> {
-            if (!handler.username.equals(this.username)) {
+
+            if(!handler.username.equals(this.username)){
                 usernames.add(handler.username);
             }
         });
         System.out.println("got list of usernames " + usernames);
         SuccessGetAvaialbePlayersResponse response = new SuccessGetAvaialbePlayersResponse(usernames);
+
+        System.out.println("resposne list: " + response.getUsernames());
         sendResponseOn(response, this.out);
         System.out.println("sent SuccessGetAvaialbePlayersResponse to client");
-
+       
     }
 }

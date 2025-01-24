@@ -51,7 +51,8 @@ public class Server {
     //turn off the server 
     public void close() {
         isRunning = false;
-        TicTacToeServerController.activePorts.clear();
+
+        TicTacToeServerController.activePlayers.clear();
         try {
             if (this.server != null && !this.server.isClosed()) {
                 // Close the server socket to unblock the accept() call

@@ -45,7 +45,9 @@ public class TicTacToeServerController implements Initializable {
     @FXML
     private ListView<String> lvAvailablePlayers;
 
-    public static ObservableList<String> activePorts;
+    
+    public static ObservableList<String> activePlayers;
+
     @FXML
     private Button btnToggleServer;
     @FXML
@@ -64,19 +66,20 @@ public class TicTacToeServerController implements Initializable {
                 MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
         );
         System.out.println("before creating active ports");
-        activePorts = FXCollections.observableArrayList();
+        activePlayers = FXCollections.observableArrayList();
         System.out.println("After creating active ports");
 
         System.out.println("MainScreenUiState created... ");
     }
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
 //        uiState = new MainScreenUiState(
 //                MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
 //        );
-        activePorts = FXCollections.observableArrayList();
+
+        activePlayers = FXCollections.observableArrayList();
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
         textErrorMessage.setText(uiState.getErrorMessage());
@@ -84,7 +87,8 @@ public class TicTacToeServerController implements Initializable {
         uiState.setPlayers(
                 FXCollections.observableList(Server.getOnlinePlayers())
         );
-        lvAvailablePlayers.setItems(activePorts);
+
+        lvAvailablePlayers.setItems(activePlayers);
         System.out.println(uiState.getPlayers().toString() + " After ");
         Platform.setImplicitExit(true);
 
@@ -163,69 +167,6 @@ public class TicTacToeServerController implements Initializable {
         }
     }
 
-//    void turnSeverOff() {
-//        isServerRunning = false;
-//        if (server != null) {
-//            server.close();
-//        }
-//        if (serverThread != null) {
-//            System.out.println("Interrupting server thread...");
-//            serverThread.interrupt();
-//            try {
-//                System.out.println("Waiting for server thread to terminate...");
-//                serverThread.join(2000);  // Wait 2S
-//                if (serverThread.isAlive()) {
-//                    System.out.println("Server thread did not terminate. Force Close");
-//                    serverThread.stop();
-//                }
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(TicTacToeServerController.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//            uiState.setServerStatus(MainScreenUiState.OFF);
-//            textServerStatus.setFill(Color.RED);
-//            uiState.setServerIp("");
-//            btnToggleServer.setText("Turn Sever ON");
-//        }
-//    }
-//    void turnSeverOff() {
-//        isServerRunning = false;
-//        if (server != null) {
-//            server.close();
-//        }
-//
-//        // Interrupt and stop all client threads
-//        synchronized (Server.clientThreadVector) {
-//            for (Thread thread : Server.clientThreadVector) {
-//                if (thread != null) {
-//                    thread.interrupt();
-//                    try {
-//                        thread.join(1000); // Wait for thread to terminate
-//                        if (thread.isAlive()) {
-//                            thread.stop(); // Force stop if thread doesn't terminate
-//                        }
-//                    } catch (InterruptedException ex) {
-//                        Logger.getLogger(TicTacToeServerController.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
-//                }
-//            }
-//            Server.clientThreadVector.clear();
-//        }
-//
-//        // Close all client handlers
-//        synchronized (Server.clientVector) {
-//            for (ClientHandler handler : Server.clientVector) {
-//                if (handler != null) {
-//                    handler.close();
-//                }
-//            }
-//            Server.clientVector.clear();
-//        }
-//
-//        uiState.setServerStatus(MainScreenUiState.OFF);
-//        textServerStatus.setFill(Color.RED);
-//        uiState.setServerIp("");
-//        btnToggleServer.setText("Turn Server ON");
-//    }
     void turnSeverOff() {
         // Ensure UI updates happen on the JavaFX Application Thread
 
