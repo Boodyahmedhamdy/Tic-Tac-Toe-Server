@@ -27,7 +27,7 @@ public class DataAccessLayer {
     static {
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/players", "player", "player");
 
             PreparedStatement st = con.prepareStatement("SELECT * FROM Player", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             rs = st.executeQuery();
@@ -151,6 +151,7 @@ public class DataAccessLayer {
         st.setBoolean(1, isOnline);
         st.setString(2, username);
         int result = st.executeUpdate();
+        st.close();
         return result;
     }
 
@@ -161,6 +162,7 @@ public class DataAccessLayer {
         st.setBoolean(1, isPlaying);
         st.setString(2, username);
         int result = st.executeUpdate();
+        st.close();
         return result;
     }
 
