@@ -254,9 +254,7 @@ public class ClientHandler implements Runnable {
 //             kill the thread here
             System.out.println("Here Must kill the Thread because signout is handled");
 
-            Platform.runLater(() -> {
-                TicTacToeServerController.activePorts.remove(signOutAction.getUsername());
-            });
+            
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }

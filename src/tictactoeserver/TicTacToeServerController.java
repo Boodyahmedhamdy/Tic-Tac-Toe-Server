@@ -177,8 +177,7 @@ public class TicTacToeServerController implements Initializable {
         uiState.setServerIp("");
         btnToggleServer.setText("Turn Server ON");
 
-        // Clear active ports list
-        activePorts.clear();
+
 
         // Close server and client connections
         if (server != null) {
