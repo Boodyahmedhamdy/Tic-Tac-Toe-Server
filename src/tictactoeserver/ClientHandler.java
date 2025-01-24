@@ -77,11 +77,11 @@ public class ClientHandler implements Runnable {
 
                 } else if (request instanceof StartGameRequest) {
 
-                    System.out.println("StartGameRequest received for username: " + ((StartGameRequest) request).getUsername());
+                    System.out.println("StartGameRequest received for username: " + ((StartGameRequest) request).getRecieverUsername());
                     handleStartGameRequest((StartGameRequest) request);
 
                 } else if (request instanceof StartGameResponse) {
-                    System.out.println("StartGameResponse received for username: " + ((StartGameRequest) request).getUsername());
+                    System.out.println("StartGameResponse received for username: " + ((StartGameResponse) request).getRecieverUsername());
 
                     handleStartGameResponse((StartGameResponse) request);
 
@@ -216,7 +216,8 @@ public class ClientHandler implements Runnable {
      */
     private void handleStartGameRequest(StartGameRequest request) {
         System.out.println("start handling StartGameRequest");
-        String playerUsername = request.getUsername();
+        // the player to send to
+        String playerUsername = request.getRecieverUsername();
 
         Server.clientVector.forEach((handler) -> {
             System.out.println("searching for the client name");
@@ -224,6 +225,8 @@ public class ClientHandler implements Runnable {
 
             if (handler.username.equals(playerUsername)) {
                 sendRequestOn(request, handler.out);
+                System.out.println("StartGameRequest was sent to " + 
+                        request.getRecieverUsername() + " from " + request.getSenderUsername());
             }
         });
         System.out.println("Finished handling StartGameRequest");
@@ -235,7 +238,7 @@ public class ClientHandler implements Runnable {
      */
     private void handleStartGameResponse(StartGameResponse response) {
         System.out.println("start handling StartGameResponse");
-        String playerUsername = response.getUsername();
+        String playerUsername = response.getRecieverUsername();
 
         Server.clientVector.forEach((handler) -> {
             System.out.println("searching for the client name");
