@@ -20,9 +20,11 @@ import network.requests.GetAvailablePlayersRequest;
 import network.requests.LoginRequest;
 import network.requests.RegisterRequest;
 import network.requests.Request;
+import network.requests.SignOutRequest;
 import network.requests.StartGameRequest;
 import network.responses.FailLoginResponse;
 import network.responses.FailRegisterResponse;
+import network.responses.FailSignOutResponse;
 import network.responses.LoginResponse;
 import network.responses.RegisterResponse;
 import network.responses.Response;
@@ -30,6 +32,7 @@ import network.responses.StartGameResponse;
 import network.responses.SuccessGetAvaialbePlayersResponse;
 import network.responses.SuccessLoginResponse;
 import network.responses.SuccessRegisterResponse;
+import network.responses.SuccessSignOutResponse;
 
 /**
  *
@@ -83,10 +86,10 @@ public class ClientHandler implements Runnable {
 
                     handleStartGameResponse((StartGameResponse) request);
 
-                } else if (request instanceof SignOutAction) {
+                } else if (request instanceof SignOutRequest) {
 
-                    System.out.println("SignOutAction received for username: " + ((SignOutAction) request).getUsername());
-                    handleSignOutAction((SignOutAction) request);
+                    System.out.println("SignOutAction received for username: " + ((SignOutRequest) request).getUsername());
+                    handleSignOutRequest((SignOutRequest) request);
 
                 } else {
                     System.out.println("Unknown request received: " + request.getClass().getSimpleName());
@@ -186,11 +189,15 @@ public class ClientHandler implements Runnable {
     }
 
     public void close() {
+        System.out.println("Started Closing the Client handler");
         isRunning = false;
         try {
             Server.clientVector.remove(this);
             Server.clientThreadVector.remove(Thread.currentThread());
-
+            Platform.runLater(() -> {
+                TicTacToeServerController.activePlayers.remove(this.username);
+            });
+            
             if (clientSocket != null && !clientSocket.isClosed()) {
                 clientSocket.close();
             }
@@ -249,15 +256,38 @@ public class ClientHandler implements Runnable {
     /**
      * updates the database as the Player is not playing and not online
      */
-    private void handleSignOutAction(SignOutAction signOutAction) {
+    private void handleSignOutRequest(SignOutRequest signOutRequest) {
         try {
-            System.out.println("Start handling " + signOutAction.getClass().getSimpleName());
-            DataAccessLayer.updateIsOnline(signOutAction.getUsername(), false);
-            DataAccessLayer.updateIsPlaying(signOutAction.getUsername(), false);
-//             kill the thread here
-            System.out.println("Here Must kill the Thread because signout is handled");
-
+            System.out.println("Start handling " + signOutRequest.getClass().getSimpleName());
+            int isOnlineResult = DataAccessLayer.updateIsOnline(signOutRequest.getUsername(), false);
+            int isPlayingResult = DataAccessLayer.updateIsPlaying(signOutRequest.getUsername(), false);
             
+            if(isOnlineResult > 0 && isPlayingResult > 0) {
+                System.out.println("Signed Out Successfully");
+                SuccessSignOutResponse response = new SuccessSignOutResponse();
+
+                ClientHandler handlerToClose = null;
+                for(ClientHandler handler : Server.clientVector) {
+                    if(handler.username.equals(signOutRequest.getUsername())) {
+                        System.out.println("sending SuccessSignOutResponse to " + signOutRequest.getUsername());
+                        sendResponseOn(response, handler.out);
+                        handlerToClose = handler;
+                        break;
+                    }
+                }
+                handlerToClose.close();
+                
+            } else {
+                System.out.println("Signed Out Failed");
+                FailSignOutResponse response = new FailSignOutResponse();
+                Server.clientVector.forEach((handler) -> {
+                    if(handler.username.equals(signOutRequest.getUsername())) {
+                        System.out.println("sending FailSignOutResponse to " + signOutRequest.getUsername());
+                        sendResponseOn(response, handler.out);
+                    }
+                });
+            }
+
         } catch (SQLException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
