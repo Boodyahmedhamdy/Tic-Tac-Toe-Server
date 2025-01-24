@@ -43,7 +43,7 @@ public class TicTacToeServerController implements Initializable {
     @FXML
     private ListView<String> lvAvailablePlayers;
     
-    public static ObservableList<String> activePorts;
+    public static ObservableList<String> activePlayers;
     @FXML
     private Button btnToggleServer;
     @FXML
@@ -61,7 +61,7 @@ public class TicTacToeServerController implements Initializable {
                 MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
         );
         System.out.println("before creating active ports");
-        activePorts = FXCollections.observableArrayList();
+        activePlayers = FXCollections.observableArrayList();
         System.out.println("After creating active ports");
 
         System.out.println("MainScreenUiState created... ");
@@ -73,7 +73,7 @@ public class TicTacToeServerController implements Initializable {
 //        uiState = new MainScreenUiState(
 //                MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
 //        );
-        activePorts = FXCollections.observableArrayList();
+        activePlayers = FXCollections.observableArrayList();
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
         textErrorMessage.setText(uiState.getErrorMessage());
@@ -81,7 +81,7 @@ public class TicTacToeServerController implements Initializable {
         uiState.setPlayers(
                 FXCollections.observableList(Server.getOnlinePlayers())
         );
-        lvAvailablePlayers.setItems(activePorts);
+        lvAvailablePlayers.setItems(activePlayers);
         System.out.println(uiState.getPlayers().toString() + " After ");
     }
 

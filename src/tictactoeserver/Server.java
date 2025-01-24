@@ -36,7 +36,6 @@ public class Server {
                 try {
                     Socket playerSocket = server.accept();
                     initPlayerConnection(playerSocket);
-                    TicTacToeServerController.activePorts.add(String.valueOf(playerSocket.getPort()));
                 } catch (IOException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error accepting player connection", ex);
                 }
@@ -51,7 +50,7 @@ public class Server {
     // Turning Off Server
     public void close() {
         isRunning = false;
-        TicTacToeServerController.activePorts.clear();
+        TicTacToeServerController.activePlayers.clear();
         try {
             if (this.server != null && !this.server.isClosed()) {
                 this.server.close();
