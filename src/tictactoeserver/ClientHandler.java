@@ -118,6 +118,7 @@ public class ClientHandler implements Runnable {
 
                 response = new SuccessLoginResponse(userName, rank);
                 username = request.getUsername();
+                TicTacToeServerController.activePlayers.add(userName);
 
 
             } else {
