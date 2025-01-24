@@ -27,7 +27,7 @@ public class DataAccessLayer {
     static {
         try {
             DriverManager.registerDriver(new ClientDriver());
-            con = DriverManager.getConnection("jdbc:derby://localhost:1527/players", "player", "player");
+            con = DriverManager.getConnection("jdbc:derby://localhost:1527/Server", "player", "player");
 
             PreparedStatement st = con.prepareStatement("SELECT * FROM Player", ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             rs = st.executeQuery();
