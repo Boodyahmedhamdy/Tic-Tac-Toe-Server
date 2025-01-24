@@ -124,7 +124,9 @@ public class ClientHandler implements Runnable {
                 response = new FailLoginResponse("Invalid username or password.");
             }
 
+
             sendResponseOn(response, out);
+
         } catch (Exception ex) {
             System.out.println("*************FROM HANDLE LOGIN****************");
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,8 +152,9 @@ public class ClientHandler implements Runnable {
             } else {
                 response = new FailRegisterResponse("Invalid username or password.");
             }
-//
+
             sendResponseOn(response, out);
+
         } catch (Exception ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
