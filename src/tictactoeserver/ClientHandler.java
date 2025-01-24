@@ -272,6 +272,7 @@ public class ClientHandler implements Runnable {
         });
         System.out.println("got list of usernames " + usernames);
         SuccessGetAvaialbePlayersResponse response = new SuccessGetAvaialbePlayersResponse(usernames);
+        System.out.println("resposne list: " + response.getUsernames());
         sendResponseOn(response, this.out);
         System.out.println("sent SuccessGetAvaialbePlayersResponse to client");
         
