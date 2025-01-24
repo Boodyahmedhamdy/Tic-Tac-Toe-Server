@@ -17,12 +17,12 @@ public class Server {
 
     public ServerSocket server;
     public static final int PORT = 9800;
-    public static final String STOP_STRING = "##";
-    private int playerIdx = 0;
     private boolean isRunning = false;
 
     private ArrayList<ClientHandler> activePlayers;
     public static Vector<ClientHandler> clientVector = new Vector<>();
+    public static Vector<Thread> clientThreadVector = new Vector<>();
+    public static int playerThreadNumber;
 
     public Server() {
     }
@@ -36,6 +36,7 @@ public class Server {
                 try {
                     Socket playerSocket = server.accept();
                     initPlayerConnection(playerSocket);
+                    TicTacToeServerController.activePorts.add(String.valueOf(playerSocket.getPort()));
                 } catch (IOException ex) {
                     Logger.getLogger(Server.class.getName()).log(Level.SEVERE, "Error accepting player connection", ex);
                 }
@@ -47,35 +48,49 @@ public class Server {
         }
     }
 
-    // Turning Off Server
+    //turn off the server 
     public void close() {
         isRunning = false;
+
         TicTacToeServerController.activePlayers.clear();
         try {
             if (this.server != null && !this.server.isClosed()) {
+                // Close the server socket to unblock the accept() call
                 this.server.close();
+            }
+            synchronized (clientVector) {
+                System.out.println("Closing client handlers...");
+                for (ClientHandler client : clientVector) {
+                    if (client != null) {
+                        client.close();
+                    }
+                }
+                clientVector.clear();
+            }
+            synchronized (clientThreadVector) {
+                System.out.println("Interrupting client threads...");
+                for (Thread thread : clientThreadVector) {
+                    if (thread != null) {
+                        thread.interrupt();
+                    }
+                }
+                clientThreadVector.clear();
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     public void initPlayerConnection(Socket playerSocket) throws IOException {
-
         if (playerSocket.isConnected()) {
             ClientHandler clientHandler = new ClientHandler(playerSocket);
-            Thread playerListenr = new Thread(clientHandler);
+            Thread clientThread = new Thread(clientHandler);
+            clientThreadVector.add(clientThread);
             clientVector.add(clientHandler);
-            if (isRunning) {
-                playerListenr.start();
-            } else {
-                playerListenr.interrupt();
-            }
-
+            clientThread.start();
         }
     }
-    
+
     public static ArrayList<String> getOnlinePlayers() {
         ArrayList<String> usernames = new ArrayList<>();
         Server.clientVector.forEach((handler) -> {

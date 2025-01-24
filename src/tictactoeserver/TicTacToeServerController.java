@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -42,8 +44,10 @@ public class TicTacToeServerController implements Initializable {
     private Text textServerIp;
     @FXML
     private ListView<String> lvAvailablePlayers;
+
     
     public static ObservableList<String> activePlayers;
+
     @FXML
     private Button btnToggleServer;
     @FXML
@@ -55,6 +59,7 @@ public class TicTacToeServerController implements Initializable {
     Server server;
     private volatile boolean isServerRunning = false;
     public static MainScreenUiState uiState;
+
     static {
         System.out.println("MainScreenUiState creating... ");
         uiState = new MainScreenUiState(
@@ -73,6 +78,7 @@ public class TicTacToeServerController implements Initializable {
 //        uiState = new MainScreenUiState(
 //                MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
 //        );
+
         activePlayers = FXCollections.observableArrayList();
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
@@ -81,8 +87,20 @@ public class TicTacToeServerController implements Initializable {
         uiState.setPlayers(
                 FXCollections.observableList(Server.getOnlinePlayers())
         );
+
         lvAvailablePlayers.setItems(activePlayers);
         System.out.println(uiState.getPlayers().toString() + " After ");
+        Platform.setImplicitExit(true);
+
+    }
+
+    public void setStage(Stage stage) {
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            if (isServerRunning) {
+                turnSeverOff();
+            }
+            System.out.println("Server window closed. setStage Method");
+        });
     }
 
     @FXML
@@ -116,12 +134,18 @@ public class TicTacToeServerController implements Initializable {
     }
 
     void turnSeverOn() {
-        server = new Server();
-        isServerRunning = true;
-        serverThread = new Thread(() -> {
-            server.start();
-        });
-        serverThread.start();
+        if (server == null) {
+            server = new Server();
+            isServerRunning = true;
+        }
+
+        if (serverThread == null) {
+            serverThread = new Thread(() -> {
+                server.start();
+            });
+            serverThread.start();
+        }
+
         uiState.setServerStatus(MainScreenUiState.ON);
         textServerStatus.setFill(Color.GREEN);
         String serverIp = getServerIp();
@@ -144,17 +168,36 @@ public class TicTacToeServerController implements Initializable {
     }
 
     void turnSeverOff() {
+        // Ensure UI updates happen on the JavaFX Application Thread
+
+        // Reset server-related UI elements
         isServerRunning = false;
-//        if (server != null) {
-//            server.shutdown(); // Ensure all resources are cleaned up
-//        }
-        if (serverThread != null) {
-            serverThread.interrupt(); // Interrupt the server thread
-        }
         uiState.setServerStatus(MainScreenUiState.OFF);
         textServerStatus.setFill(Color.RED);
         uiState.setServerIp("");
-        btnToggleServer.setText("Turn Sever ON");
-    }
+        btnToggleServer.setText("Turn Server ON");
 
+        // Clear active ports list
+        activePorts.clear();
+
+        // Close server and client connections
+        if (server != null) {
+            server.close();
+        }
+
+        synchronized (Server.clientVector) {
+            for (ClientHandler handler : Server.clientVector) {
+                if (handler != null) {
+                    handler.close();
+                }
+            }
+            Server.clientVector.clear();
+        }
+
+        // Ensure the server thread is terminated
+        if (serverThread != null) {
+            serverThread.interrupt();
+            serverThread = null;
+        }
+    }
 }
