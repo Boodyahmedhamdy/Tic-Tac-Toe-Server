@@ -23,12 +23,14 @@ import network.requests.RegisterRequest;
 import network.requests.Request;
 import network.requests.SignOutRequest;
 import network.requests.StartGameRequest;
+import network.requests.ReplayRequest;
 import network.responses.FailLoginResponse;
 import network.responses.FailRegisterResponse;
 import network.responses.FailSignOutResponse;
 import network.responses.LoginResponse;
 import network.responses.PlayAtResponse;
 import network.responses.RegisterResponse;
+import network.responses.ReplayResponse;
 import network.responses.Response;
 import network.responses.StartGameResponse;
 import network.responses.SuccessGetAvaialbePlayersResponse;
@@ -47,6 +49,7 @@ public class ClientHandler implements Runnable {
     private ObjectOutputStream out;
     public String username;
     private boolean isRunning;
+    
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -97,7 +100,11 @@ public class ClientHandler implements Runnable {
                     System.out.println("PlayAt request received from username: " + ((PlayAtRequest) request).getFrom());
                     handlePlayAt((PlayAtRequest) request);
                   
-                } else {
+                }else if(request instanceof ReplayRequest){
+                    System.out.println("Replay request received from username: " + ((ReplayRequest) request).getFrom());
+                    handleReplay((ReplayRequest) request);
+                  
+                }else {
 
                     System.out.println("Unknown request received: " + request.getClass().getSimpleName());
                 }
@@ -122,9 +129,10 @@ public class ClientHandler implements Runnable {
             if (isUserValid && isPasswordValid) {
 
                 response = new SuccessLoginResponse(userName, rank);
-                username = request.getUsername();
+                this.username = request.getUsername();
                 TicTacToeServerController.activePlayers.add(userName);
-
+                DataAccessLayer.updateIsOnline(userName, true);
+                
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
             }
@@ -142,7 +150,6 @@ public class ClientHandler implements Runnable {
             System.out.println("Register request received for username: " + request.getUsername());
             String userName = request.getUsername();
             String Password = request.getPassword();
-            int rank = DataAccessLayer.getRANK(userName, Password);
             boolean isRegistered = DataAccessLayer.insert(new Player(
                     request.getUsername(),
                     request.getPassword(),
@@ -151,8 +158,9 @@ public class ClientHandler implements Runnable {
 
             RegisterResponse response;
             if (isRegistered) {
-
-                response = new SuccessRegisterResponse(userName, rank);
+                response = new SuccessRegisterResponse(userName, DataAccessLayer.getRANK(userName, Password));
+                this.username = request.getUsername();
+                TicTacToeServerController.activePlayers.add(userName);
             } else {
                 response = new FailRegisterResponse("Invalid username or password.");
             }
@@ -254,7 +262,16 @@ public class ClientHandler implements Runnable {
             System.out.println("the current one is " + handler.username);
 
             if (handler.username.equals(playerUsername)) {
-                sendResponseOn(response, handler.out);
+                try {
+                    int senderIsPlaying = DataAccessLayer.updateIsPlaying(response.getSenderUsername(), true);
+                    int recieverIsPlaying = DataAccessLayer.updateIsPlaying(response.getRecieverUsername(), true);
+                    if(senderIsPlaying > 0 && recieverIsPlaying > 0) {
+                        sendResponseOn(response, handler.out);
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         });
         System.out.println("Finished handling StartGameResponse");
@@ -317,18 +334,33 @@ public class ClientHandler implements Runnable {
        
     }
     
-        private void handlePlayAt(PlayAtRequest request) {
-            //System.out.println("PlayAt request received for username: " + request.getFrom());
-            
-            PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol());
-            Server.clientVector.forEach((handler) -> {
-                if(handler.username.equals(request.getTo())){
-                    sendResponseOn(response, handler.out);
-                    System.out.println("sending PlayAtRequest To player : " + request.getTo());
 
-                }
-            });
-            
-        }
+    private void handlePlayAt(PlayAtRequest request) {
+        //System.out.println("PlayAt request received for username: " + request.getFrom());
+        PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol(),request.IsGameOver());
+        Server.clientVector.forEach((handler) -> {
+          if(handler.username.equals(request.getTo())){
+                sendResponseOn(response, handler.out);
+                System.out.println("sending PlayAtRequest To player : " + request.getTo());
+
+            }
+        });
+
+    }
+    
+    private void handleReplay(ReplayRequest request) {
+        //System.out.println("Replay request received for username: " + request.getFrom());
+
+        ReplayResponse response=new ReplayResponse(request.getTo(),request.getFrom(),request.isWantToPlayAgain());
+        Server.clientVector.forEach((handler) -> {
+            if(handler.username.equals(request.getTo())){
+                sendResponseOn(response, handler.out);
+                System.out.println("sending ReplayRequest To player : " + request.getTo());
+
+            }
+        });
+        
+
+    }
 
 }
