@@ -150,7 +150,6 @@ public class ClientHandler implements Runnable {
             System.out.println("Register request received for username: " + request.getUsername());
             String userName = request.getUsername();
             String Password = request.getPassword();
-            int rank = DataAccessLayer.getRANK(userName, Password);
             boolean isRegistered = DataAccessLayer.insert(new Player(
                     request.getUsername(),
                     request.getPassword(),
@@ -159,8 +158,7 @@ public class ClientHandler implements Runnable {
 
             RegisterResponse response;
             if (isRegistered) {
-
-                response = new SuccessRegisterResponse(userName, rank);
+                response = new SuccessRegisterResponse(userName, DataAccessLayer.getRANK(userName, Password));
                 this.username = request.getUsername();
                 TicTacToeServerController.activePlayers.add(userName);
             } else {
@@ -336,12 +334,12 @@ public class ClientHandler implements Runnable {
        
     }
     
+
     private void handlePlayAt(PlayAtRequest request) {
         //System.out.println("PlayAt request received for username: " + request.getFrom());
-
         PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol(),request.IsGameOver());
         Server.clientVector.forEach((handler) -> {
-            if(handler.username.equals(request.getTo())){
+          if(handler.username.equals(request.getTo())){
                 sendResponseOn(response, handler.out);
                 System.out.println("sending PlayAtRequest To player : " + request.getTo());
 
