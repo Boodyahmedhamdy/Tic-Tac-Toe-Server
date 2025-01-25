@@ -88,6 +88,7 @@ public class TicTacToeServerController implements Initializable {
                 FXCollections.observableList(Server.getOnlinePlayers())
         );
 
+        activePlayers = FXCollections.observableList(Server.getOnlinePlayers());
         lvAvailablePlayers.setItems(activePlayers);
         System.out.println(uiState.getPlayers().toString() + " After ");
         Platform.setImplicitExit(true);
