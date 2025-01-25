@@ -19,6 +19,18 @@
     -fx-border-color: #cccccc; /* Lighter border on hover */
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 8, 0.3, 0, 3); /* Slightly stronger shadow */
 }
+.titleLable {
+      -fx-text-fill: #FFFFFF;
+     -fx-font-size: 80px; 
+    
+    -fx-font-family: "Arabic Typesetting"; 
+}
+.lable {
+     -fx-font-size: 30px; 
+    -fx-text-fill: #00000;
+    -fx-font-family: "Arabic Typesetting"; 
+}
+
 
 /* Pressed button effect */
 .button:pressed {
@@ -30,4 +42,20 @@
 .vbox {
     -fx-alignment: center; /* Center alignment */
     -fx-spacing: 25px; /* Increased space between buttons for better layout */
+}
+/*.big-screen {
+    -fx-background-color: black ;
+     -fx-background-image: url("src/tictactoeserver/ui/styles/xor.jpg");
+    -fx-pref-width: 1100;
+    -fx-pref-height: 800;
+}*/
+#Mypane{
+    
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-image: url(xor.jpg);
+     -fx-pref-width: 1100;
+    -fx-pref-height: 800;
+    
+     
 }
