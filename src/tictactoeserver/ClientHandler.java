@@ -319,8 +319,16 @@ public class ClientHandler implements Runnable {
     
         private void handlePlayAt(PlayAtRequest request) {
             System.out.println("PlayAt request received for username: " + request.getFrom());
+            
             PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol());
-            sendResponseOn(response, out);
+            Server.clientVector.forEach((handler) -> {
+                if(!handler.username.equals(request.getTo())){
+                    sendResponseOn(response, handler.out);
+                    System.out.println("sending PlayAtRequest To player : " + request.getTo());
+
+                }
+            });
+            
         }
 
 }
