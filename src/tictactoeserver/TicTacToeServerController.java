@@ -147,7 +147,7 @@ public class TicTacToeServerController implements Initializable {
         }
 
         uiState.setServerStatus(MainScreenUiState.ON);
-        textServerStatus.setFill(Color.WHITE);
+        textServerStatus.setFill(Color.GREEN);
         String serverIp = getServerIp();
         uiState.setServerIp(serverIp); // example for random ip
         btnToggleServer.setText("Turn Sever OFF");
@@ -173,7 +173,7 @@ public class TicTacToeServerController implements Initializable {
         // Reset server-related UI elements
         isServerRunning = false;
         uiState.setServerStatus(MainScreenUiState.OFF);
-        textServerStatus.setFill(Color.WHITE);
+        textServerStatus.setFill(Color.RED);
         uiState.setServerIp("");
         btnToggleServer.setText("Turn Server ON");
 
