@@ -93,10 +93,10 @@ public class ClientHandler implements Runnable {
                     System.out.println("SignOutAction received for username: " + ((SignOutRequest) request).getUsername());
                     handleSignOutRequest((SignOutRequest) request);
 
-                } else if(request instanceof PlayAtRequest){
+                } else if (request instanceof PlayAtRequest) {
                     System.out.println("PlayAt request received for username: " + ((PlayAtRequest) request).getFrom());
                     handlePlayAt((PlayAtRequest) request);
-                  
+
                 } else {
 
                     System.out.println("Unknown request received: " + request.getClass().getSimpleName());
@@ -120,10 +120,13 @@ public class ClientHandler implements Runnable {
             boolean isPasswordValid = DataAccessLayer.checkPassword(userName, Password);
             LoginResponse response;
             if (isUserValid && isPasswordValid) {
-
                 response = new SuccessLoginResponse(userName, rank);
                 username = request.getUsername();
-                TicTacToeServerController.activePlayers.add(userName);
+
+                // Update the activePlayers list on the JavaFX Application Thread
+                Platform.runLater(() -> {
+                    TicTacToeServerController.activePlayers.add(userName);
+                });
 
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
@@ -166,8 +169,9 @@ public class ClientHandler implements Runnable {
 
     private void sendResponseOn(Response response, ObjectOutputStream outputStream) {
         try {
-            outputStream.writeObject(response);
-            outputStream.flush();
+            out.reset();
+            out.writeObject(response);
+            out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -176,9 +180,10 @@ public class ClientHandler implements Runnable {
     public void sendRequestOn(Request request, ObjectOutputStream outputStream) {
         try {
             System.out.println("Sending " + request.getClass().getSimpleName() + " from sendRequestOn");
-
-            outputStream.writeObject(request);
-            outputStream.flush();
+            
+            out.reset();
+            out.writeObject(request);
+            out.flush();
 
             System.out.println("sent " + request.getClass().getSimpleName() + " from sendRequestOn");
         } catch (IOException ex) {
@@ -188,8 +193,9 @@ public class ClientHandler implements Runnable {
 
     public void sendActionOn(Action action, ObjectOutputStream outputStream) {
         try {
-            outputStream.writeObject(action);
-            outputStream.flush();
+            out.reset();
+            out.writeObject(action);
+            out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -204,7 +210,7 @@ public class ClientHandler implements Runnable {
             Platform.runLater(() -> {
                 TicTacToeServerController.activePlayers.remove(this.username);
             });
-            
+
             if (clientSocket != null && !clientSocket.isClosed()) {
                 clientSocket.close();
             }
@@ -234,8 +240,8 @@ public class ClientHandler implements Runnable {
 
             if (handler.username.equals(playerUsername)) {
                 sendRequestOn(request, handler.out);
-                System.out.println("StartGameRequest was sent to " + 
-                        request.getRecieverUsername() + " from " + request.getSenderUsername());
+                System.out.println("StartGameRequest was sent to "
+                        + request.getRecieverUsername() + " from " + request.getSenderUsername());
             }
         });
         System.out.println("Finished handling StartGameRequest");
@@ -268,27 +274,32 @@ public class ClientHandler implements Runnable {
             System.out.println("Start handling " + signOutRequest.getClass().getSimpleName());
             int isOnlineResult = DataAccessLayer.updateIsOnline(signOutRequest.getUsername(), false);
             int isPlayingResult = DataAccessLayer.updateIsPlaying(signOutRequest.getUsername(), false);
-            
-            if(isOnlineResult > 0 && isPlayingResult > 0) {
+
+            if (isOnlineResult > 0 && isPlayingResult > 0) {
                 System.out.println("Signed Out Successfully");
                 SuccessSignOutResponse response = new SuccessSignOutResponse();
 
                 ClientHandler handlerToClose = null;
-                for(ClientHandler handler : Server.clientVector) {
-                    if(handler.username.equals(signOutRequest.getUsername())) {
+                for (ClientHandler handler : Server.clientVector) {
+                    if (handler.username.equals(signOutRequest.getUsername())) {
                         System.out.println("sending SuccessSignOutResponse to " + signOutRequest.getUsername());
                         sendResponseOn(response, handler.out);
                         handlerToClose = handler;
                         break;
                     }
                 }
+
+                Platform.runLater(() -> {
+                    TicTacToeServerController.activePlayers.remove(signOutRequest.getUsername());
+                });
+
                 handlerToClose.close();
-                
+
             } else {
                 System.out.println("Signed Out Failed");
                 FailSignOutResponse response = new FailSignOutResponse();
                 Server.clientVector.forEach((handler) -> {
-                    if(handler.username.equals(signOutRequest.getUsername())) {
+                    if (handler.username.equals(signOutRequest.getUsername())) {
                         System.out.println("sending FailSignOutResponse to " + signOutRequest.getUsername());
                         sendResponseOn(response, handler.out);
                     }
@@ -300,27 +311,37 @@ public class ClientHandler implements Runnable {
         }
     }
 
+//    private void handleGetAvailablePlayersRequest(GetAvailablePlayersRequest getAvailablePlayersRequest) {
+//        ArrayList<String> usernames = new ArrayList<>();
+//        Server.clientVector.forEach((handler) -> {
+//
+//            if (!handler.username.equals(this.username)) {
+//                usernames.add(handler.username);
+//            }
+//        });
+//        System.out.println("got list of usernames " + usernames);
+//        SuccessGetAvaialbePlayersResponse response = new SuccessGetAvaialbePlayersResponse(usernames);
+//
+//        System.out.println("resposne list: " + response.getUsernames());
+//        sendResponseOn(response, this.out);
+//        System.out.println("sent SuccessGetAvaialbePlayersResponse to client");
+//
+//    }
     private void handleGetAvailablePlayersRequest(GetAvailablePlayersRequest getAvailablePlayersRequest) {
         ArrayList<String> usernames = new ArrayList<>();
         Server.clientVector.forEach((handler) -> {
-
-            if(!handler.username.equals(this.username)){
+            if (!handler.username.equals(this.username)) {
                 usernames.add(handler.username);
             }
         });
-        System.out.println("got list of usernames " + usernames);
         SuccessGetAvaialbePlayersResponse response = new SuccessGetAvaialbePlayersResponse(usernames);
-
-        System.out.println("resposne list: " + response.getUsernames());
         sendResponseOn(response, this.out);
-        System.out.println("sent SuccessGetAvaialbePlayersResponse to client");
-       
     }
-    
-        private void handlePlayAt(PlayAtRequest request) {
-            System.out.println("PlayAt request received for username: " + request.getFrom());
-            PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol());
-            sendResponseOn(response, out);
-        }
+
+    private void handlePlayAt(PlayAtRequest request) {
+        System.out.println("PlayAt request received for username: " + request.getFrom());
+        PlayAtResponse response = new PlayAtResponse(request.getTo(), request.getFrom(), request.getX(), request.getY(), request.getSymbol());
+        sendResponseOn(response, out);
+    }
 
 }
