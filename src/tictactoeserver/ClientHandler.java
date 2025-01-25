@@ -94,7 +94,7 @@ public class ClientHandler implements Runnable {
                     handleSignOutRequest((SignOutRequest) request);
 
                 } else if(request instanceof PlayAtRequest){
-                    System.out.println("PlayAt request received for username: " + ((PlayAtRequest) request).getFrom());
+                    System.out.println("PlayAt request received from username: " + ((PlayAtRequest) request).getFrom());
                     handlePlayAt((PlayAtRequest) request);
                   
                 } else {
@@ -318,11 +318,11 @@ public class ClientHandler implements Runnable {
     }
     
         private void handlePlayAt(PlayAtRequest request) {
-            System.out.println("PlayAt request received for username: " + request.getFrom());
+            //System.out.println("PlayAt request received for username: " + request.getFrom());
             
             PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol());
             Server.clientVector.forEach((handler) -> {
-                if(!handler.username.equals(request.getTo())){
+                if(handler.username.equals(request.getTo())){
                     sendResponseOn(response, handler.out);
                     System.out.println("sending PlayAtRequest To player : " + request.getTo());
 
