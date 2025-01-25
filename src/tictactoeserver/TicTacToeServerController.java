@@ -5,6 +5,7 @@
  */
 package tictactoeserver;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -21,8 +22,15 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -36,6 +44,10 @@ public class TicTacToeServerController implements Initializable {
     private Text textServerIp;
     @FXML
     private ListView<String> lvAvailablePlayers;
+
+    
+    public static ObservableList<String> activePlayers;
+
     @FXML
     private Button btnToggleServer;
     @FXML
@@ -46,19 +58,49 @@ public class TicTacToeServerController implements Initializable {
     private Thread serverThread;
     Server server;
     private volatile boolean isServerRunning = false;
-    MainScreenUiState uiState;
+    public static MainScreenUiState uiState;
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+    static {
+        System.out.println("MainScreenUiState creating... ");
         uiState = new MainScreenUiState(
                 MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
         );
+        System.out.println("before creating active ports");
+        activePlayers = FXCollections.observableArrayList();
+        System.out.println("After creating active ports");
+
+        System.out.println("MainScreenUiState created... ");
+    }
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // TODO
+//        uiState = new MainScreenUiState(
+//                MainScreenUiState.OFF, "", FXCollections.observableList(new ArrayList<>()), ""
+//        );
+
+        activePlayers = FXCollections.observableArrayList();
         textServerStatus.setText(uiState.getServerStatus());
         textServerIp.setText(uiState.getServerIp());
         textErrorMessage.setText(uiState.getErrorMessage());
-        lvAvailablePlayers.setItems(uiState.getPlayers());
+        System.out.println(uiState.getPlayers().toString() + " before ");
+        uiState.setPlayers(
+                FXCollections.observableList(Server.getOnlinePlayers())
+        );
 
+        lvAvailablePlayers.setItems(activePlayers);
+        System.out.println(uiState.getPlayers().toString() + " After ");
+        Platform.setImplicitExit(true);
+
+    }
+
+    public void setStage(Stage stage) {
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            if (isServerRunning) {
+                turnSeverOff();
+            }
+            System.out.println("Server window closed. setStage Method");
+        });
     }
 
     @FXML
@@ -72,6 +114,15 @@ public class TicTacToeServerController implements Initializable {
     @FXML
     void handleShowStatisticsBtn(ActionEvent event) {
         System.out.println("Statistics Button Clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Graph.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) btnPlayersStatistics.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void toggle() {
@@ -83,14 +134,20 @@ public class TicTacToeServerController implements Initializable {
     }
 
     void turnSeverOn() {
-        server = new Server();
-        isServerRunning = true;
-        serverThread = new Thread(() -> {
-            server.start();
-        });
-        serverThread.start();
+        if (server == null) {
+            server = new Server();
+            isServerRunning = true;
+        }
+
+        if (serverThread == null) {
+            serverThread = new Thread(() -> {
+                server.start();
+            });
+            serverThread.start();
+        }
+
         uiState.setServerStatus(MainScreenUiState.ON);
-        textServerStatus.setFill(Color.GREEN);
+        textServerStatus.setFill(Color.WHITE);
         String serverIp = getServerIp();
         uiState.setServerIp(serverIp); // example for random ip
         btnToggleServer.setText("Turn Sever OFF");
@@ -111,17 +168,35 @@ public class TicTacToeServerController implements Initializable {
     }
 
     void turnSeverOff() {
+        // Ensure UI updates happen on the JavaFX Application Thread
+
+        // Reset server-related UI elements
         isServerRunning = false;
+        uiState.setServerStatus(MainScreenUiState.OFF);
+        textServerStatus.setFill(Color.WHITE);
+        uiState.setServerIp("");
+        btnToggleServer.setText("Turn Server ON");
+
+
+
+        // Close server and client connections
         if (server != null) {
             server.close();
         }
+
+        synchronized (Server.clientVector) {
+            for (ClientHandler handler : Server.clientVector) {
+                if (handler != null) {
+                    handler.close();
+                }
+            }
+            Server.clientVector.clear();
+        }
+
+        // Ensure the server thread is terminated
         if (serverThread != null) {
             serverThread.interrupt();
+            serverThread = null;
         }
-        uiState.setServerStatus(MainScreenUiState.OFF);
-        textServerStatus.setFill(Color.RED);
-        uiState.setServerIp("");
-        btnToggleServer.setText("Turn Sever ON");
     }
-
 }
