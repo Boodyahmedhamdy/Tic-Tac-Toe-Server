@@ -142,7 +142,6 @@ public class ClientHandler implements Runnable {
             System.out.println("Register request received for username: " + request.getUsername());
             String userName = request.getUsername();
             String Password = request.getPassword();
-            int rank = DataAccessLayer.getRANK(userName, Password);
             boolean isRegistered = DataAccessLayer.insert(new Player(
                     request.getUsername(),
                     request.getPassword(),
@@ -152,7 +151,7 @@ public class ClientHandler implements Runnable {
             RegisterResponse response;
             if (isRegistered) {
 
-                response = new SuccessRegisterResponse(userName, rank);
+                response = new SuccessRegisterResponse(userName, DataAccessLayer.getRANK(userName, Password));
             } else {
                 response = new FailRegisterResponse("Invalid username or password.");
             }
