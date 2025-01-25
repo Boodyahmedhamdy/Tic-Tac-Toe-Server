@@ -122,9 +122,10 @@ public class ClientHandler implements Runnable {
             if (isUserValid && isPasswordValid) {
 
                 response = new SuccessLoginResponse(userName, rank);
-                username = request.getUsername();
+                this.username = request.getUsername();
                 TicTacToeServerController.activePlayers.add(userName);
-
+                DataAccessLayer.updateIsOnline(userName, true);
+                
             } else {
                 response = new FailLoginResponse("Invalid username or password.");
             }
@@ -153,6 +154,8 @@ public class ClientHandler implements Runnable {
             if (isRegistered) {
 
                 response = new SuccessRegisterResponse(userName, rank);
+                this.username = request.getUsername();
+                TicTacToeServerController.activePlayers.add(userName);
             } else {
                 response = new FailRegisterResponse("Invalid username or password.");
             }
@@ -254,7 +257,16 @@ public class ClientHandler implements Runnable {
             System.out.println("the current one is " + handler.username);
 
             if (handler.username.equals(playerUsername)) {
-                sendResponseOn(response, handler.out);
+                try {
+                    int senderIsPlaying = DataAccessLayer.updateIsPlaying(response.getSenderUsername(), true);
+                    int recieverIsPlaying = DataAccessLayer.updateIsPlaying(response.getRecieverUsername(), true);
+                    if(senderIsPlaying > 0 && recieverIsPlaying > 0) {
+                        sendResponseOn(response, handler.out);
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         });
         System.out.println("Finished handling StartGameResponse");
