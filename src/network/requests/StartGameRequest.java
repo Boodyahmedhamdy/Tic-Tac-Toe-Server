@@ -1,30 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package network.requests;
 
-/**
- *
- * @author HP
- */
-public class StartGameRequest extends Request{
-    
-    private String username;
+import java.io.Serializable;
 
-    public StartGameRequest(String username) {
-        this.username = username;
-    }
+public class StartGameRequest extends Request implements Serializable {
 
-    public String getUsername() {
-        return username;
-    }
+    private String senderUsername;
+    private String recieverUsername;
 
-    public void setUsername(String username) {
-        this.username = username;
+    public StartGameRequest(String senderUsername, String recieverUsername) {
+        this.senderUsername = senderUsername;
+        this.recieverUsername = recieverUsername;
     }
     
-    
-    
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
+    }
+
+    public String getRecieverUsername() {
+        return recieverUsername;
+    }
+
+    public void setRecieverUsername(String recieverUsername) {
+        this.recieverUsername = recieverUsername;
+    }
+
 }

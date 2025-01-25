@@ -1,17 +1,14 @@
-package network.actions;
-
-import network.requests.Request;
+package network.requests;
 
 /**
  *
  * @author HP
  */
-public class SignOutAction extends Request {
-    
+public class SignOutRequest extends Request {
     private String username;
 
-    public SignOutAction() {  }
-    public SignOutAction(String username) {
+
+    public SignOutRequest(String username) {
         this.username = username;
     }
 
@@ -22,10 +19,6 @@ public class SignOutAction extends Request {
     public void setUsername(String username) {
         this.username = username;
     }
-    
-    
-    
-    
     
     
     

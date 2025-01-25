@@ -12,5 +12,5 @@ import java.io.Serializable;
  * @author HP
  */
 public class Action implements Serializable{
-    
+    private static final long serialVersionUID = 1L; 
 }
