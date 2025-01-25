@@ -16,15 +16,20 @@ public class PlayAtResponse extends Response{
     private int x;
     private int y;
     private String symbol;
+    private boolean GameOver;
 
-    public PlayAtResponse(String from, String to, int x, int y, String symbol) {
+    public PlayAtResponse(String from, String to, int x, int y, String symbol, boolean GameOver) {
         this.from = from;
         this.to = to;
         this.x = x;
         this.y = y;
         this.symbol = symbol;
+        this.GameOver = GameOver;
     }
 
+    public boolean IsGameOver() {
+        return GameOver;
+    }
 
     public int getX() {
         return x;

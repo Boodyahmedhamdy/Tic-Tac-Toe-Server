@@ -23,12 +23,14 @@ import network.requests.RegisterRequest;
 import network.requests.Request;
 import network.requests.SignOutRequest;
 import network.requests.StartGameRequest;
+import network.requests.ReplayRequest;
 import network.responses.FailLoginResponse;
 import network.responses.FailRegisterResponse;
 import network.responses.FailSignOutResponse;
 import network.responses.LoginResponse;
 import network.responses.PlayAtResponse;
 import network.responses.RegisterResponse;
+import network.responses.ReplayResponse;
 import network.responses.Response;
 import network.responses.StartGameResponse;
 import network.responses.SuccessGetAvaialbePlayersResponse;
@@ -47,6 +49,7 @@ public class ClientHandler implements Runnable {
     private ObjectOutputStream out;
     public String username;
     private boolean isRunning;
+    
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -97,7 +100,11 @@ public class ClientHandler implements Runnable {
                     System.out.println("PlayAt request received from username: " + ((PlayAtRequest) request).getFrom());
                     handlePlayAt((PlayAtRequest) request);
                   
-                } else {
+                }else if(request instanceof ReplayRequest){
+                    System.out.println("Replay request received from username: " + ((ReplayRequest) request).getFrom());
+                    handleReplay((ReplayRequest) request);
+                  
+                }else {
 
                     System.out.println("Unknown request received: " + request.getClass().getSimpleName());
                 }
@@ -329,18 +336,33 @@ public class ClientHandler implements Runnable {
        
     }
     
-        private void handlePlayAt(PlayAtRequest request) {
-            //System.out.println("PlayAt request received for username: " + request.getFrom());
-            
-            PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol());
-            Server.clientVector.forEach((handler) -> {
-                if(handler.username.equals(request.getTo())){
-                    sendResponseOn(response, handler.out);
-                    System.out.println("sending PlayAtRequest To player : " + request.getTo());
+    private void handlePlayAt(PlayAtRequest request) {
+        //System.out.println("PlayAt request received for username: " + request.getFrom());
 
-                }
-            });
-            
-        }
+        PlayAtResponse response=new PlayAtResponse(request.getTo(),request.getFrom(),request.getX(),request.getY(),request.getSymbol(),request.IsGameOver());
+        Server.clientVector.forEach((handler) -> {
+            if(handler.username.equals(request.getTo())){
+                sendResponseOn(response, handler.out);
+                System.out.println("sending PlayAtRequest To player : " + request.getTo());
+
+            }
+        });
+
+    }
+    
+    private void handleReplay(ReplayRequest request) {
+        //System.out.println("Replay request received for username: " + request.getFrom());
+
+        ReplayResponse response=new ReplayResponse(request.getTo(),request.getFrom(),request.isWantToPlayAgain());
+        Server.clientVector.forEach((handler) -> {
+            if(handler.username.equals(request.getTo())){
+                sendResponseOn(response, handler.out);
+                System.out.println("sending ReplayRequest To player : " + request.getTo());
+
+            }
+        });
+        
+
+    }
 
 }
