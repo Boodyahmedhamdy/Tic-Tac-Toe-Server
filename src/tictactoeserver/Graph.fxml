@@ -6,11 +6,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane id="Mypane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@styles/main-screen-style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tictactoeserver.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tictactoeserver.GraphController">
    <center>
       <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <top>
-            <Label prefHeight="108.0" prefWidth="782.0" styleClass="titleLable" text="       Online vs Offline players " BorderPane.alignment="CENTER" />
+            <Label prefHeight="75.0" prefWidth="386.0" text="       Number off online vs offline players in our server" BorderPane.alignment="CENTER" />
          </top>
          <center>
             <BarChart fx:id="barChart" prefHeight="307.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -18,7 +18,7 @@
                 <CategoryAxis side="BOTTOM" />
               </xAxis>
               <yAxis>
-                <NumberAxis side="LEFT" tickLabelFill="#f8f8f8" />
+                <NumberAxis side="LEFT" />
               </yAxis>
             </BarChart>
          </center>
